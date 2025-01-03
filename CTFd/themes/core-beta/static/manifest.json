@@ -1,0 +1,164 @@
+{
+  "_clipboard-CeVcSvW3.js": {
+    "file": "assets/clipboard-CeVcSvW3.js",
+    "name": "clipboard",
+    "imports": [
+      "assets/js/index.js"
+    ]
+  },
+  "_echarts-D7sLx1lV.js": {
+    "file": "assets/echarts-D7sLx1lV.js",
+    "name": "echarts"
+  },
+  "_scoreboard-DqXRKQ-B.js": {
+    "file": "assets/scoreboard-DqXRKQ-B.js",
+    "name": "scoreboard",
+    "imports": [
+      "_echarts-D7sLx1lV.js",
+      "assets/js/index.js"
+    ]
+  },
+  "_userscore-qwQZOWc4.js": {
+    "file": "assets/userscore-qwQZOWc4.js",
+    "name": "userscore",
+    "imports": [
+      "assets/js/index.js",
+      "_scoreboard-DqXRKQ-B.js"
+    ]
+  },
+  "assets/js/challenges.js": {
+    "file": "assets/challenges-BVYLIWru.js",
+    "name": "challenges",
+    "src": "assets/js/challenges.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js"
+    ]
+  },
+  "assets/js/index.js": {
+    "file": "assets/index-CkGBYZLb.js",
+    "name": "index",
+    "src": "assets/js/index.js",
+    "isEntry": true
+  },
+  "assets/js/notifications.js": {
+    "file": "assets/notifications-ty8hPIc_.js",
+    "name": "notifications",
+    "src": "assets/js/notifications.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js"
+    ]
+  },
+  "assets/js/page.js": {
+    "file": "assets/page-yYkgYOId.js",
+    "name": "page",
+    "src": "assets/js/page.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js"
+    ]
+  },
+  "assets/js/scoreboard.js": {
+    "file": "assets/scoreboard-DRmYxocy.js",
+    "name": "scoreboard",
+    "src": "assets/js/scoreboard.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js",
+      "_scoreboard-DqXRKQ-B.js",
+      "_echarts-D7sLx1lV.js"
+    ]
+  },
+  "assets/js/settings.js": {
+    "file": "assets/settings-B1n8uhup.js",
+    "name": "settings",
+    "src": "assets/js/settings.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js",
+      "_clipboard-CeVcSvW3.js"
+    ]
+  },
+  "assets/js/setup.js": {
+    "file": "assets/setup-DiKhQ-ul.js",
+    "name": "setup",
+    "src": "assets/js/setup.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js"
+    ]
+  },
+  "assets/js/teams/list.js": {
+    "file": "assets/teams_list-yYkgYOId.js",
+    "name": "teams_list",
+    "src": "assets/js/teams/list.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js"
+    ]
+  },
+  "assets/js/teams/private.js": {
+    "file": "assets/teams_private-C9M_5geK.js",
+    "name": "teams_private",
+    "src": "assets/js/teams/private.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js",
+      "_clipboard-CeVcSvW3.js",
+      "_userscore-qwQZOWc4.js",
+      "_scoreboard-DqXRKQ-B.js",
+      "_echarts-D7sLx1lV.js"
+    ]
+  },
+  "assets/js/teams/public.js": {
+    "file": "assets/teams_public-BslUzBvJ.js",
+    "name": "teams_public",
+    "src": "assets/js/teams/public.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js",
+      "_userscore-qwQZOWc4.js",
+      "_scoreboard-DqXRKQ-B.js",
+      "_echarts-D7sLx1lV.js"
+    ]
+  },
+  "assets/js/users/list.js": {
+    "file": "assets/users_list-yYkgYOId.js",
+    "name": "users_list",
+    "src": "assets/js/users/list.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js"
+    ]
+  },
+  "assets/js/users/private.js": {
+    "file": "assets/users_private-CDyz3XQu.js",
+    "name": "users_private",
+    "src": "assets/js/users/private.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js",
+      "_userscore-qwQZOWc4.js",
+      "_scoreboard-DqXRKQ-B.js",
+      "_echarts-D7sLx1lV.js"
+    ]
+  },
+  "assets/js/users/public.js": {
+    "file": "assets/users_public-BoodYkJm.js",
+    "name": "users_public",
+    "src": "assets/js/users/public.js",
+    "isEntry": true,
+    "imports": [
+      "assets/js/index.js",
+      "_userscore-qwQZOWc4.js",
+      "_scoreboard-DqXRKQ-B.js",
+      "_echarts-D7sLx1lV.js"
+    ]
+  },
+  "assets/scss/main.scss": {
+    "file": "assets/main-CFEpubRa.css",
+    "src": "assets/scss/main.scss",
+    "isEntry": true
+  }
+}
