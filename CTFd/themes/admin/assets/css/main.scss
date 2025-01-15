@@ -9,12 +9,12 @@
 html,
 body,
 .container {
-  font-family: "Lato", "LatoOffline", sans-serif;
+  font-family: "Space Mono", monospace;
 }
 
 h1,
 h2 {
-  font-family: "Raleway", "RalewayOffline", sans-serif;
+  font-family: "Space Mono", monospace;
   font-weight: 500;
   letter-spacing: 2px;
 }
@@ -53,6 +53,7 @@ blockquote {
 .jumbotron {
   border-radius: 0;
   text-align: center;
+  background-color: #ffffff;
 }
 
 .form-control:focus {
@@ -157,4 +158,8 @@ blockquote {
   vertical-align: top;
   margin-left: -1.5em;
   font-size: 50%;
+}
+
+.rotate {
+  transform: rotate(90deg);
 }
