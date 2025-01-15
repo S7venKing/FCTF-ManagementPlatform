@@ -50,7 +50,7 @@
             margin: 0;
             height: 100vh;
             overflow-x: hidden;
-            font-family: 'Roboto', sans-serif;
+            font-family: "Space Mono", monospace;
         }
 
         /* Sidebar Styles */
@@ -60,8 +60,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            background: linear-gradient(180deg, #034ea2, #01346e); /* FPT-inspired gradient background */
-            color: white;
+            background: #F9F3F1; /* FPT-inspired gradient background */
+            color: #838181;
             padding: 20px;
             overflow-y: auto;
             display: flex;
@@ -69,12 +69,16 @@
             align-items: flex-start;
             overflow-x: hidden;
         }
+        #sidebar::-webkit-scrollbar {
+            width: 0px;
+        }
         .logo-container {
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
             margin-bottom: 20px;
+            background-color: #F9F3F1!important;
         }
 
         .logo-container img {
@@ -89,14 +93,14 @@
         }
 
         #sidebar a {
-            color: white;
+            color: #838181;
             display: flex;
             align-items: center;
             padding: 10px;
             margin-bottom: 10px;
             text-decoration: none;
             font-weight: 500;
-            transition: background-color 0.3s, color 0.3s;
+            /* transition: background-color 0.3s, color 0.3s; */
         }
 
         #sidebar a i {
@@ -105,12 +109,34 @@
         }
 
         #sidebar a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: #ff5500;
             color: #ffffff;
+            clip-path: polygon(
+                0% 0%,
+                100% 0%,
+                100% calc(100% - 10px),
+                calc(100% - 10px) 100%,
+                0% 100%
+            );
+        }
+
+        #sidebar .active {
+            background-color: #ff5500;
+            color: #ffffff;
+            clip-path: polygon(
+                0% 0%,
+                100% 0%,
+                100% calc(100% - 10px),
+                calc(100% - 10px) 100%,
+                0% 100%
+            );
         }
 
         .dropdown-menu {
-            background-color: #034ea2;
+            background-color: #F9F3F1;
+            display: none;
+            margin-top: 10px;
+            transform: none!important;
         }
 
         .dropdown-menu a:hover {
@@ -121,8 +147,8 @@
         /* Content Styles */
 		#content {
             margin-left: 300px;
-            padding: 20px;
-            width: calc(100% - 300px);
+            padding: 0;
+            width: calc(100% - 280px);
             overflow-y: auto;
             background-color: #f9f9f9; /* Light grey for better readability of content */
         }
@@ -146,6 +172,32 @@
         }
         .navbar-brand > img{
             width: 30%;
+        }
+        .nav-link {
+            transition: none;
+            cursor: pointer;
+        }
+        #sidebar .sub-menu {
+            display: none;
+            /* border: solid 1px #ff5500; */
+            background-color: #F7CFBE;
+        }
+        #sidebar .sub-menu a {
+            background-color: #F7CFBE;
+            font-size: 0.8rem;
+        }
+        #sidebar .sub-menu a:hover {
+            color: #fff;
+            background-color: #ff5500;
+        }
+        #sidebar .nav-item a .dropdown{
+            position: absolute;
+            right: 0;
+            margin: 20px;
+            transition: 0.3s ease;
+        }
+        .rotate{
+            transform: rotate(90deg);
         }
     </style>
 </head>
@@ -217,7 +269,7 @@
                     
                 </li>
                 {% endif %}
-                <li class="nav-item dropdown">
+                <!-- <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                         aria-haspopup="true" aria-expanded="true">
                         <i class="bx bx-down-arrow-circle"></i> Submissions
@@ -226,6 +278,14 @@
                         <a class="dropdown-item" href="{{ url_for('admin.submissions_listing') }}">All Submissions</a>
                         <a class="dropdown-item" href="{{ url_for('admin.submissions_listing', submission_type='correct') }}">Correct Submissions</a>
                         <a class="dropdown-item" href="{{ url_for('admin.submissions_listing', submission_type='incorrect') }}">Incorrect Submissions</a>
+                    </div>
+                </li> -->
+                <li class="nav-item">
+                    <a class="sub-btn nav-link"><i class="bx bx-down-arrow-circle"></i>Submissions<i class='bx bx-chevron-right dropdown'></i> </a>
+                    <div class="sub-menu">
+                      <a href="{{ url_for('admin.submissions_listing') }}" class="sub-item">All Submissions</a>
+                      <a href="{{ url_for('admin.submissions_listing', submission_type='correct') }}" class="sub-item">Correct Submissions</a>
+                      <a href="{{ url_for('admin.submissions_listing', submission_type='incorrect') }}" class="sub-item">Incorrect Submissions</a>
                     </div>
                 </li>
                 {% if is_admin() %}
@@ -266,3 +326,13 @@
 </body>
 
 </html>
+<script type="text/javascript">
+    $(document).ready(function(){
+      //jquery for toggle sub menus
+      $('.sub-btn').click(function(){
+        $(this).next('.sub-menu').slideToggle();
+        $(this).find('.dropdown').toggleClass('rotate');
+        $(this).toggleClass('active');
+      });
+    });
+</script>

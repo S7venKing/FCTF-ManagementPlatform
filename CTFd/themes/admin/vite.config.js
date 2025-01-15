@@ -44,6 +44,18 @@ export default defineConfig({
             {
               src: "./node_modules/@ctfdio/ctfd-js/assets/sounds/**",
               dest: "static/sounds"
+            },
+            {
+              src: "./node_modules/@fontsource/space-mono/files/**/*400*-normal*",
+              dest: "static/webfonts"
+            },
+            {
+              src: "./node_modules/@fontsource/space-mono/files/**/*700*-normal*",
+              dest: "static/webfonts"
+            },
+            {
+              src: "./node_modules/@fontsource/space-mono/files/**/*italic*",
+              dest: "static/webfonts"
             }
           ],
           hook: "writeBundle"
