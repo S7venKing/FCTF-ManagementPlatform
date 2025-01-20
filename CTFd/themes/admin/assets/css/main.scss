@@ -52,8 +52,9 @@ blockquote {
 
 .jumbotron {
   border-radius: 0;
-  text-align: center;
   background-color: #ffffff;
+  text-transform: uppercase;
+  color: #ff5500;
 }
 
 .form-control:focus {
@@ -162,4 +163,25 @@ blockquote {
 
 .rotate {
   transform: rotate(90deg);
+}
+
+.angled-line {
+  width: 100%;
+  height: 10px; /* Adjust height as needed */
+  background: linear-gradient(
+    to right,
+    #f5b8a6,
+    #f5b8a6
+  ); /* Set desired color */
+  transform: skewY(-2deg); /* Adjust skew angle */
+  transform-origin: top left;
+}
+
+// Override the default heading margin
+h1 {
+  margin-bottom: 0 !important;
+}
+
+h1 + svg {
+  margin-top: -2rem !important;
 }
