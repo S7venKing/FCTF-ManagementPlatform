@@ -53,6 +53,13 @@
     {% if not is_jury() %}
     <div class="row">
         <div class="col-md-12">
+            <div class="float-left pb-3">
+                <button class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.challenge_template') }}">
+                        <i class="bx bx-cog"></i> Challenge Template
+                    </a>
+                </button>
+            </div>
             <div class="float-right pb-3">
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-outline-secondary" data-toggle="tooltip"
