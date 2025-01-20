@@ -14,6 +14,7 @@ from flask import (
     url_for,
     redirect,
 )
+from werkzeug.utils import secure_filename
 
 from CTFd.admin import admin
 from CTFd.models import Challenges, DeployedChallenge, Flags, Solves, db
@@ -177,15 +178,6 @@ def challenges_teamplate():
 
     return render_template("admin/deploy.html", types=types, template_files=template_files)
 
-@admin.route("/admin/challenges/download/<filename>")
-@admin_or_challenge_writer_only_or_jury
-def download_template(filename):
-    template_dir = os.path.join(current_app.root_path, "template_challenge")
-    file_path = os.path.join(template_dir, filename)
-    if not os.path.exists(file_path):
-        abort(404, description=f"File '{filename}' not found.")
-
-    return send_from_directory(template_dir, filename, as_attachment=True)
 
 
 @admin.route("/admin/challenges/<int:challenge_id>/upload", methods=["POST"])
