@@ -150,7 +150,7 @@
             padding: 0;
             width: calc(100% - 280px);
             overflow-y: auto;
-            background-color: #f9f9f9; /* Light grey for better readability of content */
+            background-color: #fff; /* Light grey for better readability of content */
         }
 
         .card {
@@ -268,17 +268,6 @@
                     </a>         
                 </li>
                 {% endif %}
-                <!-- <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
-                        aria-haspopup="true" aria-expanded="true">
-                        <i class="bx bx-down-arrow-circle"></i> Submissions
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{{ url_for('admin.submissions_listing') }}">All Submissions</a>
-                        <a class="dropdown-item" href="{{ url_for('admin.submissions_listing', submission_type='correct') }}">Correct Submissions</a>
-                        <a class="dropdown-item" href="{{ url_for('admin.submissions_listing', submission_type='incorrect') }}">Incorrect Submissions</a>
-                    </div>
-                </li> -->
                 <li class="nav-item">
                     <a class="sub-btn nav-link"><i class="bx bx-down-arrow-circle"></i>Submissions<i class='bx bx-chevron-right dropdown'></i> </a>
                     <div class="sub-menu">
