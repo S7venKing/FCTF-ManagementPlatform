@@ -43,38 +43,40 @@ def allowed_file(filename):
 @bypass_csrf_protection
 @admin_or_challenge_writer_only
 def challenge_template():
-    template_dir = "/var/template_challenge"
-    
-    # Ensure the template_challenge directory exists
-    if not os.path.exists(template_dir):
-        os.makedirs(template_dir)
+    try:
+        template_dir = "/var/template_challenge"
         
-    message_list = []
+        # Ensure the template_challenge directory exists
+        if not os.path.exists(template_dir):
+            os.makedirs(template_dir)
+            
+        message_list = []
 
-    # Xử lý upload file
-    if request.method == "POST":
-        if not is_admin():
-            message_list.append("No file path")
-            return redirect(request.url)
-        
-        if "file" not in request.files:
-            message_list.append("No file path")
-            return redirect(request.url)
-        
-        file = request.files["file"]
+        # Xử lý upload file
+        if request.method == "POST":
+            if not is_admin():
+                message_list.append("No file path")
 
-        if file.filename == "":
-            message_list.append("No selected file")
-            return redirect(request.url)
+            
+            if "file" not in request.files:
+                message_list.append("No file path")
 
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)  # Đảm bảo tên file an toàn
-            file.save(os.path.join(template_dir, filename))
-            message_list.append("File uploaded successfully!")
-            return redirect(request.url)
-        else:
-            message_list.append("File type not allowed!. File .zip only")
-            return redirect(request.url)
+            
+            file = request.files["file"]
+
+            if file.filename == "":
+                message_list.append("No selected file")
+
+
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)  # Đảm bảo tên file an toàn
+                file.save(os.path.join(template_dir, filename))
+                message_list.append("File uploaded successfully!")
+
+            else:
+                message_list.append("File type not allowed!. File .zip only")
+    except Exception as ex:
+        message_list.append("Exception when uploading file")
 
     # Hiển thị danh sách file
     try:
@@ -82,6 +84,8 @@ def challenge_template():
         template_files = [file for file in template_files if os.path.isfile(os.path.join(template_dir, file))]
     except FileNotFoundError:
         template_files = []
+    except Exception as ex:
+        message_list.append("Exception when loading file")
 
     return render_template(
         "admin/challengeTemplate/list_template.html",
