@@ -102,6 +102,9 @@ def challenges_detail(challenge_id):
     update_script = url_for(
         "views.static_html", route=challenge_class.scripts["update"].lstrip("/")
     )
+
+    is_detail = True   # check if this is detail page
+
     return render_template(
         "admin/challenges/challenge.html",
         update_template=update_j2,
@@ -111,6 +114,7 @@ def challenges_detail(challenge_id):
         solves=solves,
         flags=flags,
         deploys=len(deploys),
+        is_detail=is_detail
     )
 
 

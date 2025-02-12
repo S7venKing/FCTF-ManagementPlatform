@@ -160,7 +160,7 @@
         }
 
         .card-title {
-            color: #034ea2; /* FPT Blue */
+            color: #ff5500; /* FPT Blue */
             font-weight: bold;
         }
 
@@ -176,6 +176,10 @@
         .nav-link {
             transition: none;
             cursor: pointer;
+            color: #ff5500;
+        }
+        .nav-link:hover {
+            color: #ff5500;
         }
         #sidebar .sub-menu {
             display: none;
@@ -198,6 +202,23 @@
         }
         .rotate{
             transform: rotate(90deg);
+        }
+        .btn-primary {
+            background-color: #ff5500 !important;
+            border: #ff5500 !important;
+        }
+        .form-group .btn {
+            clip-path: polygon(
+                0% 0%,
+                100% 0%,
+                100% calc(100% - 10px),
+                calc(100% - 10px) 100%,
+                0% 100%
+            );
+        }
+        option:hover {
+            background-color: #ff5500;
+            color: white;
         }
     </style>
 </head>
@@ -311,29 +332,32 @@
     {% for script in get_registered_admin_scripts() %}
     <script defer src="{{ script.startswith('http') and script or url_for('static', filename=script) }}"></script>
     {% endfor %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+          //jquery for toggle sub menus
+          $('.sub-btn').click(function(){
+            $(this).next('.sub-menu').slideToggle();
+            $(this).find('.dropdown').toggleClass('rotate');
+            $(this).toggleClass('active');
+          });
+          {% if not is_detail %}
+          //inserting title underlines
+          $('.jumbotron').find('.container').append(`<svg width="184" height="5" viewBox="0 0 184 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="100" width="43" height="5" fill="#E45C25"/>
+                <rect x="150" width="2" height="5" fill="#E45C25"/>
+                <rect x="154" width="3" height="5" fill="#E45C25"/>
+                <rect x="170" width="3" height="5" fill="#E45C25"/>
+                <rect x="182" width="2" height="5" fill="#E45C25"/>
+                <rect opacity="0.5" width="127" height="5" fill="#E45C25"/>
+            </svg>`);
+            {% endif %}
+    
+          $('.jumbotron').append(`<svg width="100%" height="15" viewBox="0 0 1089 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path opacity="0.3" d="M-7 1H171.287L187.332 14H938.513L954.559 1H1096" stroke="#E45C25" stroke-width="2"/>
+        </svg>`);
+        });
+    </script>
 </body>
 
 </html>
-<script type="text/javascript">
-    $(document).ready(function(){
-      //jquery for toggle sub menus
-      $('.sub-btn').click(function(){
-        $(this).next('.sub-menu').slideToggle();
-        $(this).find('.dropdown').toggleClass('rotate');
-        $(this).toggleClass('active');
-      });
 
-      //inserting title underlines
-      $('.jumbotron').find('.container').append(`<svg width="184" height="5" viewBox="0 0 184 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<rect x="100" width="43" height="5" fill="#E45C25"/>
-			<rect x="150" width="2" height="5" fill="#E45C25"/>
-			<rect x="154" width="3" height="5" fill="#E45C25"/>
-			<rect x="170" width="3" height="5" fill="#E45C25"/>
-			<rect x="182" width="2" height="5" fill="#E45C25"/>
-			<rect opacity="0.5" width="127" height="5" fill="#E45C25"/>
-		</svg>`);
-      $('.jumbotron').append(`<svg width="100%" height="15" viewBox="0 0 1089 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path opacity="0.3" d="M-7 1H171.287L187.332 14H938.513L954.559 1H1096" stroke="#E45C25" stroke-width="2"/>
-    </svg>`);
-    });
-</script>

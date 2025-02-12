@@ -86,8 +86,8 @@
 
 <div class="jumbotron">
 	<div class="container">
-		<h1 id="team-id" class="text-center p-0 m-0">{{ user.name }}</h1>
-		<div class="mb-2">
+		<h1 id="team-id" class="text-center p-0 m-0" style="text-transform: none;">{{ user.name }}</h1>
+		<div class="mb-2 text-center"  style="text-transform: none;">
 			{% if user.type == 'admin' %}
 			<span class="badge badge-primary">admin</span>
 			{% endif %}
@@ -103,13 +103,13 @@
 		</div>
 
 		{% if user.affiliation %}
-		<h3 class="d-inline-block">
+		<h3 class="d-inline-block text-center" style="text-transform: none;">
 			<span class="badge badge-primary">{{ user.affiliation }}</span>
 		</h3>
 		{% endif %}
 
 		{% if user.country %}
-		<h3 class="d-inline-block">
+		<h3 class="d-inline-block text-center" style="text-transform: none;">
 			<span class="badge badge-primary">
 				<i class="flag-{{ user.country.lower() }}"></i>
 				{{ lookup_country_code(user.country) }}
@@ -117,7 +117,7 @@
 		</h3>
 		{% endif %}
 
-		<h2 id="team-email" class="text-center">{{ user.email }}</h2>
+		<h2 id="team-email" class="text-center" style="text-transform: none;">{{ user.email }}</h2>
 		{% if user.oauth_id %}
 		<a href="https://majorleaguecyber.org/u/{{ user.name }}">
 			<h3><span class="badge badge-primary">Official</span></h3>
@@ -125,7 +125,7 @@
 		{% endif %}
 
 		{% if user.team_id %}
-		<h2 id="team-acc" class="text-center">
+		<h2 id="team-acc" class="text-center" style="text-transform: none;">
 			<a href="{{ url_for('admin.teams_detail', team_id=user.team_id) }}">
 				{{ user.team.name }}
 			</a>
@@ -133,25 +133,25 @@
 		{% endif %}
 
 		{% for field in user.get_fields(admin=true) %}
-		<h3 class="d-block">
+		<h3 class="d-block text-center" style="text-transform: none;">
 			{{ field.name }}: {{ field.value }}
 		</h3>
 		{% endfor %}
 
-		<h3 id="team-place" class="text-center">
+		<h3 id="team-place" class="text-center" style="text-transform: none;">
 			{% if place %}
 			{{ place }}
 			<small>place</small>
 			{% endif %}
 		</h3>
-		<h3 id="team-score" class="text-center">
+		<h3 id="team-score" class="text-center" style="text-transform: none;">
 			{% if score %}
 			{{ score }}
 			<small>points</small>
 			{% endif %}
 		</h3>
 		<hr class="w-50">
-		<div class="pt-3">
+		<div class="pt-3 text-center" style="text-transform: none;">
 			{% if not is_jury()%}
 
 			<a class="edit-user text-dark">
@@ -179,7 +179,7 @@
 			</a>
 			{% endif %}
 		</div>
-		<div class="pt-3">
+		<div class="pt-3 text-center">
 			<a class="addresses-user text-dark">
 				<i class="btn-fa fas fa-network-wired fa-2x px-2" data-toggle="tooltip" data-placement="top"
 					title="IP Addresses"></i>

@@ -42,13 +42,15 @@
           <br />
           <form @submit.prevent="submitFlag">
             <div id="create-flag-form" v-html="createForm"></div>
-            <button
-              class="btn btn-success float-right"
-              type="submit"
-              v-if="createForm"
-            >
-              Create Flag
-            </button>
+            <div class="form-group">
+              <button
+                class="btn btn-primary float-right"
+                type="submit"
+                v-if="createForm"
+              >
+                Create Flag
+              </button>
+            </div>
           </form>
         </div>
       </div>
