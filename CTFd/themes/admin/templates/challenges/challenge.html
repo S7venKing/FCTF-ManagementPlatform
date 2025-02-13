@@ -47,34 +47,34 @@
 	</div>
 
 	<div class="jumbotron">
-		<div class="container">
+		<div class="container" style="text-transform: none;">
 			<h1 class="text-center">{{ challenge.name }}</h1>
 			<h2 class="text-center">{{ challenge.category }}</h2>
 			<h2 class="text-center">{{ challenge.type }}</h2>
 			{% set badge_state = 'badge-danger' if challenge.state == 'hidden' else 'badge-success' %}
-			<h5>
+			<h5 class="text-center">
 				<span class="badge {{ badge_state }} challenge-state">
 					{{ challenge.state }}
 				</span>
 			</h5>
 			<h3 class="text-center">{{ challenge.value }} points</h3>
-			<div class="pt-3">
+			<div class="pt-3 text-center">
 				{% if challenge.deploy_status =='success' %}
-				<a class="preview-challenge">
+				<a class="preview-challenge text-dark">
 					<i class="btn-fa fas fa-file-alt fa-2x px-2" data-toggle="tooltip" data-placement="top"
 					   title="Preview Challenge"></i>
 				</a>
 				{% endif %}
 				
-				<a class="no-decoration" href="{{ url_for('admin.submissions_listing', submission_type='correct', field='challenge_id', q=challenge.id) }}">
+				<a class="text-dark" href="{{ url_for('admin.submissions_listing', submission_type='correct', field='challenge_id', q=challenge.id) }}">
 					<i class="btn-fa fas fa-tasks fa-2x px-2" data-toggle="tooltip" data-placement="top"
 					   title="Correct Submissions"></i>
 				</a>
-				<a class="comments-challenge">
+				<a class="comments-challenge text-dark">
 					<i class="btn-fa fas fa-comments fa-2x px-2" data-toggle="tooltip" data-placement="top"
 					   title="Comments"></i>
 				</a>
-				<a class="delete-challenge">
+				<a class="delete-challenge text-dark">
 					<i class="btn-fa fas fa-trash-alt fa-2x px-2" data-toggle="tooltip" data-placement="top"
 					   title="Delete Challenge"></i>
 				</a>

@@ -59,8 +59,8 @@ blockquote {
 
 .form-control:focus {
   background-color: transparent;
-  border-color: #a3d39c;
-  box-shadow: 0 0 0 0.1rem #a3d39c;
+  border-color: #f9f3f1;
+  box-shadow: 0 0 0 0.1rem #f9f3f1;
   transition:
     background-color 0.3s,
     border-color 0.3s;
@@ -183,5 +183,66 @@ h1 {
 }
 
 h1 + svg {
-  margin-top: -2rem !important;
+  margin-top: -1rem !important;
+}
+
+.jumbotron {
+  margin-bottom: 1rem;
+}
+
+.jumbotron .container {
+  margin-bottom: 1rem;
+}
+
+.statistics-text h5 b {
+  color: #ff5500;
+}
+
+.btn-outline-primary {
+  color: #ff5500;
+  border-color: #ff5500;
+}
+.btn-outline-primary:hover {
+  color: #fff;
+  background-color: #ff5500;
+  border-color: #ff5500;
+}
+
+.form-check-input:checked {
+  background-color: #ff5500;
+  border-color: #ff5500;
+}
+
+.table .thead-light th {
+  background-color: #f9f3f1;
+}
+
+.tooltip {
+  font-family: "Space Mono", monospace;
+}
+
+option:hover {
+  background-color: #ff5500;
+}
+
+.col-title {
+  display: block;
+  background-color: #f7cfbe;
+  border: solid 1px #ff5500;
+  color: #ff5500;
+  margin-bottom: 50px;
+}
+
+.container-fluid,
+.container {
+  margin-bottom: 2rem;
+}
+
+.nav-tabs .nav-link {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.nav-link.active {
+  background-color: #ff5500 !important;
 }
