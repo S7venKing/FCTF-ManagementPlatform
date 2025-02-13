@@ -109,7 +109,7 @@ export function ezToast(args) {
         bottom: "0",
         right: "0",
         "min-width": "20%",
-      }),
+      })
     );
   }
 

@@ -43,7 +43,7 @@
         </div>
         <div class="form-group">
           <input
-            class="btn btn-success float-right"
+            class="btn btn-primary float-right"
             id="_submit"
             name="_submit"
             type="submit"

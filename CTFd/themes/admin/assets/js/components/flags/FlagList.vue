@@ -50,13 +50,15 @@
     </table>
 
     <div class="col-md-12">
-      <button
-        id="flag-add-button"
-        class="btn btn-success d-inline-block float-right"
-        @click="addFlag()"
-      >
-        Create Flag
-      </button>
+      <div class="form-group">
+        <button
+          id="flag-add-button"
+          class="btn btn-primary d-inline-block float-right"
+          @click="addFlag()"
+        >
+          Create Flag
+        </button>
+      </div>
     </div>
   </div>
 </template>

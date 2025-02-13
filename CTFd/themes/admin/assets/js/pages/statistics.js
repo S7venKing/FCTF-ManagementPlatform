@@ -32,9 +32,16 @@ const graph_configs = {
         title: {
           left: "center",
           text: "Solve Counts",
+          textStyle: {
+            fontFamily: "Space Mono",
+            color: "#ff5500",
+          },
         },
         tooltip: {
           trigger: "item",
+          textStyle: {
+            fontFamily: "Space Mono",
+          },
         },
         toolbox: {
           show: true,
@@ -45,11 +52,19 @@ const graph_configs = {
             restore: { show: true },
             saveAsImage: { show: true },
           },
+          emphasis: {
+            iconStyle: {
+              borderColor: "#ff5500",
+            },
+          },
         },
         xAxis: {
           name: "Solve Count",
           nameLocation: "middle",
           type: "value",
+          nameTextStyle: {
+            fontFamily: "Space Mono",
+          },
         },
         yAxis: {
           name: "Challenge Name",
@@ -57,6 +72,9 @@ const graph_configs = {
           nameGap: 60,
           type: "category",
           data: chals,
+          nameTextStyle: {
+            fontFamily: "Space Mono",
+          },
           axisLabel: {
             interval: 0,
             rotate: 0, //If the label names are too long you can manage this by rotating the label.
@@ -83,7 +101,7 @@ const graph_configs = {
         ],
         series: [
           {
-            itemStyle: { normal: { color: "#1f76b4" } },
+            itemStyle: { normal: { color: "#ff5500" } },
             data: counts,
             type: "bar",
           },
@@ -105,15 +123,27 @@ const graph_configs = {
         title: {
           left: "center",
           text: "Submission Percentages",
+          textStyle: {
+            fontFamily: "Space Mono",
+            color: "#ff5500",
+          },
         },
         tooltip: {
           trigger: "item",
+          textStyle: {
+            fontFamily: "Space Mono",
+          },
         },
         toolbox: {
           show: true,
           feature: {
             dataView: { show: true, readOnly: false },
             saveAsImage: {},
+          },
+          emphasis: {
+            iconStyle: {
+              borderColor: "#ff5500",
+            },
           },
         },
         legend: {
@@ -209,15 +239,27 @@ const graph_configs = {
         title: {
           left: "center",
           text: "Category Breakdown",
+          textStyle: {
+            fontFamily: "Space Mono",
+            color: "#ff5500",
+          },
         },
         tooltip: {
           trigger: "item",
+          textStyle: {
+            fontFamily: "Space Mono",
+          },
         },
         toolbox: {
           show: true,
           feature: {
             dataView: { show: true, readOnly: false },
             saveAsImage: {},
+          },
+          emphasis: {
+            iconStyle: {
+              borderColor: "#ff5500",
+            },
           },
         },
         legend: {
@@ -327,13 +369,20 @@ const graph_configs = {
         title: {
           left: "center",
           text: "Solve Percentages per Challenge",
+          textStyle: {
+            fontFamily: "Space Mono",
+            color: "#ff5500",
+          },
         },
         tooltip: {
           trigger: "item",
           formatter: function (data) {
             return `${data.name} - ${(Math.round(data.value * 10) / 10).toFixed(
-              1,
+              1
             )}%`;
+          },
+          textStyle: {
+            fontFamily: "Space Mono",
           },
         },
         toolbox: {
@@ -345,6 +394,11 @@ const graph_configs = {
             restore: { show: true },
             saveAsImage: { show: true },
           },
+          emphasis: {
+            iconStyle: {
+              borderColor: "#ff5500",
+            },
+          },
         },
         xAxis: {
           name: "Challenge Name",
@@ -352,7 +406,11 @@ const graph_configs = {
           nameLocation: "middle",
           type: "category",
           data: names,
+          nameTextStyle: {
+            fontFamily: "Space Mono",
+          },
           axisLabel: {
+            fontFamily: "Space Mono",
             interval: 0,
             rotate: 50,
           },
@@ -367,6 +425,14 @@ const graph_configs = {
           type: "value",
           min: 0,
           max: 100,
+          nameTextStyle: {
+            fontFamily: "Space Mono",
+          },
+          axisLabel: {
+            fontFamily: "Space Mono",
+            interval: 0,
+            rotate: 0,
+          },
         },
         dataZoom: [
           {
@@ -399,7 +465,7 @@ const graph_configs = {
         ],
         series: [
           {
-            itemStyle: { normal: { color: "#1f76b4" } },
+            itemStyle: { normal: { color: "#ff5500" } },
             data: percents,
             type: "bar",
           },
@@ -430,7 +496,7 @@ const graph_configs = {
       CTFd.fetch("/api/v1/statistics/scores/distribution").then(
         function (response) {
           return response.json();
-        },
+        }
       ),
     format: (response) => {
       const data = response.data.brackets;
@@ -454,9 +520,16 @@ const graph_configs = {
         title: {
           left: "center",
           text: "Score Distribution",
+          textStyle: {
+            fontFamily: "Space Mono",
+            color: "#ff5500",
+          },
         },
         tooltip: {
           trigger: "item",
+          textStyle: {
+            fontFamily: "Space Mono",
+          },
         },
         toolbox: {
           show: true,
@@ -467,6 +540,11 @@ const graph_configs = {
             restore: { show: true },
             saveAsImage: { show: true },
           },
+          emphasis: {
+            iconStyle: {
+              borderColor: "#ff5500",
+            },
+          },
         },
         xAxis: {
           name: "Score Bracket",
@@ -474,6 +552,14 @@ const graph_configs = {
           nameLocation: "middle",
           type: "category",
           data: brackets,
+          nameTextStyle: {
+            fontFamily: "Space Mono",
+          },
+          axisLabel: {
+            fontFamily: "Space Mono",
+            interval: 0,
+            rotate: 0,
+          },
         },
         yAxis: {
           name: `Number of ${
@@ -483,6 +569,14 @@ const graph_configs = {
           nameGap: 50,
           nameLocation: "middle",
           type: "value",
+          nameTextStyle: {
+            fontFamily: "Space Mono",
+          },
+          axisLabel: {
+            fontFamily: "Space Mono",
+            interval: 0,
+            rotate: 0,
+          },
         },
         dataZoom: [
           {
@@ -515,7 +609,7 @@ const graph_configs = {
         ],
         series: [
           {
-            itemStyle: { normal: { color: "#1f76b4" } },
+            itemStyle: { normal: { color: "#ff5500" } },
             data: sizes,
             type: "bar",
           },

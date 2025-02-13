@@ -51,9 +51,11 @@
       </tbody>
     </table>
     <div class="col-md-12">
-      <button class="btn btn-success float-right" @click="addHint">
-        Create Hint
-      </button>
+      <div class="form-group">
+        <button class="btn btn-primary float-right" @click="addHint">
+          Create Hint
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -89,7 +91,7 @@ export default {
             Accept: "application/json",
             "Content-Type": "application/json",
           },
-        },
+        }
       );
       let response = await result.json();
       this.hints = response.data;
@@ -123,7 +125,7 @@ export default {
           }
         } else {
           alert(
-            "An error occurred while updating this hint. Please try again.",
+            "An error occurred while updating this hint. Please try again."
           );
         }
       });

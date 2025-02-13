@@ -52,7 +52,7 @@
 
       <div class="form-group">
         <button
-          class="btn btn-success float-right"
+          class="btn btn-primary float-right"
           :disabled="!newRequirements"
         >
           Save
@@ -129,7 +129,7 @@ export default {
     },
     getChallengeNameById: function (challenge_id) {
       let challenge = this.challenges.find(
-        (challenge) => challenge.id === challenge_id,
+        (challenge) => challenge.id === challenge_id
       );
       return challenge ? challenge.name : "";
     },
@@ -143,7 +143,7 @@ export default {
             Accept: "application/json",
             "Content-Type": "application/json",
           },
-        },
+        }
       )
         .then((response) => {
           return response.json();
