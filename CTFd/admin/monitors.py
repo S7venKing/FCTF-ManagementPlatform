@@ -20,6 +20,11 @@ def monitoring():
         monitor = {"message": "Unable to fetch performance data."}
     return render_template("admin/monitoring.html", monitor=monitor)
 
+@admin.route("/admin/monitoring_modify")
+@admin_or_challenge_writer_only_or_jury
+def monitoring_modify():
+    return render_template("admin/monitoring_modify.html")
+
 
 # Modified API to include more metrics
 @admin.route("/api/performance", methods=["POST"])
