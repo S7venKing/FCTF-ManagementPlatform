@@ -54,11 +54,11 @@
     <div class="row">
         <div class="col-md-12">
             <div class="float-left pb-3">
-                <button class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.challenge_template') }}">
-                        <i class="bx bx-cog"></i> Challenge Template
-                    </a>
-                </button>
+                    <button class="btn btn-outline-primary w-100">
+                        <a class="nav-link p-0" href="{{ url_for('admin.challenge_template') }}">
+                            <i class="bx bx-cog"></i> Challenge Template
+                        </a>
+                    </button>
             </div>
             <div class="float-right pb-3">
                 <div class="btn-group" role="group">
@@ -66,7 +66,7 @@
                         title="Edit Challenges" id="challenges-edit-button">
                         <i class="btn-fa fas fa-pencil-alt"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="Delete Challenges"
+                    <button type="button" class="btn btn-outline-danger ml-2" data-toggle="tooltip" title="Delete Challenges"
                         id="challenges-delete-button">
                         <i class="btn-fa fas fa-trash-alt"></i>
                     </button>

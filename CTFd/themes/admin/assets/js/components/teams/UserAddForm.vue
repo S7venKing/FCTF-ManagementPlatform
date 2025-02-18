@@ -59,7 +59,7 @@
     </div>
     <div class="form-group">
       <button
-        class="btn btn-success d-inline-block float-right"
+        class="btn btn-primary d-inline-block float-right"
         @click="addUsers()"
       >
         Add Users
@@ -135,7 +135,7 @@ export default {
 
       // Avoid duplicates
       const found = this.selectedUsers.some(
-        (searchUser) => searchUser.id === user.id,
+        (searchUser) => searchUser.id === user.id
       );
       if (found === false) {
         this.selectedUsers.push(user);
@@ -146,7 +146,7 @@ export default {
     },
     removeSelectedUser: function (user_id) {
       this.selectedUsers = this.selectedUsers.filter(
-        (user) => user.id !== user_id,
+        (user) => user.id !== user_id
       );
     },
     handleAddUsersRequest: function () {
@@ -163,7 +163,7 @@ export default {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
-          }),
+          })
         );
       });
 
@@ -177,7 +177,7 @@ export default {
           CTFd.fetch(`/api/v1/teams/${user.team_id}/members`, {
             method: "DELETE",
             body: JSON.stringify(body),
-          }),
+          })
         );
       });
       return Promise.all(reqs);
