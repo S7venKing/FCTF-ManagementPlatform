@@ -1,5 +1,6 @@
 from typing import List
 
+from CTFd.utils.notifications import notify_to_contestant
 from flask import current_app, make_response, request
 from flask_restx import Namespace, Resource
 
@@ -130,26 +131,35 @@ class NotificantionList(Resource):
         },
     )
     def post(self):
-        req = request.get_json()
-        print("testtttttttttttttttt "+ str(req))
-        schema = NotificationSchema()
-        result = schema.load(req)
-        if result.errors:
-            return {"success": False, "errors": result.errors}, 400
+        try:
+            req = request.get_json()
+            print("testtttttttttttttttt "+ str(req))
+            schema = NotificationSchema()
+            result = schema.load(req)
+            if result.errors:
+                return {"success": False, "errors": result.errors}, 400
 
-        db.session.add(result.data)
-        db.session.commit()
+            db.session.add(result.data)
+            db.session.commit()
 
-        response = schema.dump(result.data)
-        # Grab additional settings
-        notif_type = req.get("type", "alert")
-        notif_sound = req.get("sound", True)
-        response.data["type"] = notif_type
-        response.data["sound"] = notif_sound
-
-        current_app.events_manager.publish(data=response.data, type="notification")
-
-        return {"success": True, "data": response.data}
+            response = schema.dump(result.data)
+            print("testtttttttttttttt")
+            print(response)
+            # Grab additional settings
+            notif_type = req.get("type", "alert")
+            notif_sound = req.get("sound", True)
+            response.data["type"] = notif_type
+            response.data["sound"] = notif_sound
+            
+            current_app.events_manager.publish(data=response.data, type="notification")
+            notify_to_contestant(notif_type = response.data["type"], 
+                                 notif_sound = response.data["sound"],
+                                 notif_title= response.data["title"],
+                                 notif_message= response.data["content"])
+            return {"success": True, "data": response.data}
+        except Exception as e:
+            print("Loi roiiiii")
+            return {"success": False, "data": response.data}
 
 
 @notifications_namespace.route("/<notification_id>")
