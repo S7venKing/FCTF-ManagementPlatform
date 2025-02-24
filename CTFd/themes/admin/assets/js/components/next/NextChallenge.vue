@@ -21,12 +21,14 @@
         </select>
       </div>
       <div class="form-group">
-        <button
-          class="btn btn-success float-right"
-          :disabled="!updateAvailable"
-        >
-          Save
-        </button>
+        <div class="form-group">
+          <button
+            class="btn btn-primary float-right"
+            :disabled="!updateAvailable"
+          >
+            Save
+          </button>
+        </div>
       </div>
     </form>
   </div>

@@ -94,6 +94,8 @@ def users_detail(user_id):
         score = None
         place = None
 
+    is_detail = True 
+
     return render_template(
         "admin/users/user.html",
         solves=solves,
@@ -104,4 +106,5 @@ def users_detail(user_id):
         place=place,
         fails=fails,
         awards=awards,
+        is_detail=is_detail,
     )

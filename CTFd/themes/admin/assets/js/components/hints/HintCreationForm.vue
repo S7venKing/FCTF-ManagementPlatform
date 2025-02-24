@@ -46,7 +46,8 @@
                     <input
                       type="number"
                       class="form-control"
-                      name="cost" min="0"
+                      name="cost"
+                      min="0"
                       v-model.lazy="cost"
                     />
                   </div>
@@ -84,7 +85,9 @@
             <div class="container">
               <div class="row">
                 <div class="col-md-12">
-                  <button class="btn btn-primary float-right">Submit</button>
+                  <div class="form-group">
+                    <button class="btn btn-primary float-right">Submit</button>
+                  </div>
                 </div>
               </div>
             </div>

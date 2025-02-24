@@ -72,6 +72,8 @@ def teams_detail(team_id):
         .all()
     )
 
+    is_detail = True
+
     return render_template(
         "admin/teams/team.html",
         team=team,
@@ -83,4 +85,5 @@ def teams_detail(team_id):
         missing=missing,
         awards=awards,
         addrs=addrs,
+        is_detail=is_detail,
     )
