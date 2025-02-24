@@ -42,7 +42,7 @@ const plugin = {
 };
 function markdown(config) {
   // Merge passed config with original. Default to original.
-  const md_config = { ...{ html: true, linkify: true }, ...config };
+  const md_config = { ...{ html: false, linkify: true }, ...config };
   const md = MarkdownIt(md_config);
   md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
     tokens[idx].attrPush(["target", "_blank"]);
