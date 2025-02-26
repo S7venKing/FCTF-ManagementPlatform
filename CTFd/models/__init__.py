@@ -408,7 +408,7 @@ class ActionLogs(db.Model):
 
     actionId = db.Column(db.Integer, primary_key=True)
     userId = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"))
-    actionTime = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    actionDate = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     actionType = db.Column(db.Integer, nullable=False)
     actionDetail = db.Column(db.String(255), nullable=False)
 
@@ -416,7 +416,7 @@ class ActionLogs(db.Model):
         return {
             "actionId": self.actionId,
             "userId": self.userId,
-            "actionTime": self.actionTime.isoformat(),
+            "actionDate": self.actionDate.isoformat(),
             "actionType": self.actionType,
             "actionDetail": self.actionDetail
         }
@@ -428,11 +428,11 @@ class ActionLogs(db.Model):
         backref=db.backref("action_logs", lazy="dynamic")
     )
 
-    def __init__(self, userId, actionType, actionDetail, actionTime=None):
+    def __init__(self, userId, actionType, actionDetail, actionDate=None):
         self.userId = userId
         self.actionType = actionType
         self.actionDetail = actionDetail
-        self.actionTime = actionTime or datetime.datetime.utcnow()
+        self.actionDate = actionDate or datetime.datetime.utcnow()
 
     def __repr__(self):
         return f"<ActionLogs(actionId={self.actionId}, userId={self.userId}, actionType={self.actionType})>"
