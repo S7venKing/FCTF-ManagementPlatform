@@ -402,6 +402,40 @@ class DynamicFlag(Flags):
 
     def __repr__(self):
         return f"<DynamicFlag {self.content} for challenge {self.challenge_id}>"
+    
+class ActionLogs(db.Model):
+    __tablename__ = "action_logs"
+
+    actionId = db.Column(db.Integer, primary_key=True)
+    userId = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"))
+    actionDate = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    actionType = db.Column(db.Integer, nullable=False)
+    actionDetail = db.Column(db.String(255), nullable=False)
+
+    def to_dict(self):
+        return {
+            "actionId": self.actionId,
+            "userId": self.userId,
+            "actionDate": self.actionDate.isoformat(),
+            "actionType": self.actionType,
+            "actionDetail": self.actionDetail
+        }
+    # Relationship with Users
+    user = db.relationship(
+        "Users",
+        foreign_keys=[userId],
+        lazy="joined",
+        backref=db.backref("action_logs", lazy="dynamic")
+    )
+
+    def __init__(self, userId, actionType, actionDetail, actionDate=None):
+        self.userId = userId
+        self.actionType = actionType
+        self.actionDetail = actionDetail
+        self.actionDate = actionDate or datetime.datetime.utcnow()
+
+    def __repr__(self):
+        return f"<ActionLogs(actionId={self.actionId}, userId={self.userId}, actionType={self.actionType})>"
 
 class Users(db.Model):
     __tablename__ = "users"
