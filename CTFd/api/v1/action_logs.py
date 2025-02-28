@@ -35,25 +35,7 @@ class ActionLogList(Resource):
     def get(self):
         """Retrieve action logs"""
         try:
-            user = get_current_user()
-            generatedToken = get_token_from_header()
-
-            if not user:
-                if not generatedToken:
-                    return {"success": False, "error": "No account or account has been banned"}, 403
-                
-                token = Tokens.query.filter_by(value=generatedToken).first()
-                if token is None:
-                    return {"success": False, "error": "Token not found"}, 404
-                user = Users.query.filter_by(id=token.user_id).first()
-                if user is None:
-                    return {"success": False, "error": "User not found"}, 404
-            
-            if user.type == "admin" or request.args.get("all"):
-                logs = ActionLogs.query.order_by(ActionLogs.actionDate.desc()).all()
-            else:
-                logs = ActionLogs.query.filter_by(userId=user.id).order_by(ActionLogs.actionDate.desc()).all()
-
+            logs = ActionLogs.query.order_by(ActionLogs.actionDate.desc()).all()
             response = [log.to_dict() for log in logs]
             return {"success": True, "data": response}, 200
         except Exception as e:
