@@ -1,16 +1,16 @@
 {
   "_CommentBox-!~{00n}~.js": {
-    "file": "assets/CommentBox-CL6HGVal.css",
+    "file": "assets/CommentBox-Bl1Vc-KZ.css",
     "src": "_CommentBox-!~{00n}~.js"
   },
-  "_CommentBox-BS5OhS0O.js": {
-    "file": "assets/CommentBox-BS5OhS0O.js",
+  "_CommentBox-BmhPsxVw.js": {
+    "file": "assets/CommentBox-BmhPsxVw.js",
     "name": "CommentBox",
     "imports": [
       "assets/js/pages/main.js"
     ],
     "css": [
-      "assets/CommentBox-CL6HGVal.css"
+      "assets/CommentBox-Bl1Vc-KZ.css"
     ]
   },
   "_echarts-l0sNRNKZ.js": {
@@ -72,17 +72,17 @@
     "isEntry": true
   },
   "assets/js/pages/challenge.js": {
-    "file": "assets/pages/challenge-CWTA2SoC.js",
+    "file": "assets/pages/challenge-aR4rffv8.js",
     "name": "pages/challenge",
     "src": "assets/js/pages/challenge.js",
     "isEntry": true,
     "imports": [
       "assets/js/pages/main.js",
       "_tab-BWMkdRF8.js",
-      "_CommentBox-BS5OhS0O.js"
+      "_CommentBox-BmhPsxVw.js"
     ],
     "css": [
-      "assets/challenge-BS15OlxH.css"
+      "assets/challenge-C_4QKjRP.css"
     ]
   },
   "assets/js/pages/challenges.js": {
@@ -106,14 +106,14 @@
     ]
   },
   "assets/js/pages/editor.js": {
-    "file": "assets/pages/editor-BBRlbwzr.js",
+    "file": "assets/pages/editor-CRlwDe1l.js",
     "name": "pages/editor",
     "src": "assets/js/pages/editor.js",
     "isEntry": true,
     "imports": [
       "assets/js/pages/main.js",
       "_htmlmixed-BN5gMmmx.js",
-      "_CommentBox-BS5OhS0O.js"
+      "_CommentBox-BmhPsxVw.js"
     ]
   },
   "assets/js/pages/main.js": {
@@ -178,14 +178,14 @@
     ]
   },
   "assets/js/pages/team.js": {
-    "file": "assets/pages/team-Dwd4uPbu.js",
+    "file": "assets/pages/team-D7wO2NOM.js",
     "name": "pages/team",
     "src": "assets/js/pages/team.js",
     "isEntry": true,
     "imports": [
       "assets/js/pages/main.js",
       "_graphs-Cb21ORxH.js",
-      "_CommentBox-BS5OhS0O.js",
+      "_CommentBox-BmhPsxVw.js",
       "_echarts.common-Cd248EL-.js"
     ]
   },
@@ -199,14 +199,14 @@
     ]
   },
   "assets/js/pages/user.js": {
-    "file": "assets/pages/user-DV-pTiH-.js",
+    "file": "assets/pages/user-fUQp9z2C.js",
     "name": "pages/user",
     "src": "assets/js/pages/user.js",
     "isEntry": true,
     "imports": [
       "assets/js/pages/main.js",
       "_graphs-Cb21ORxH.js",
-      "_CommentBox-BS5OhS0O.js",
+      "_CommentBox-BmhPsxVw.js",
       "_echarts.common-Cd248EL-.js"
     ]
   },
