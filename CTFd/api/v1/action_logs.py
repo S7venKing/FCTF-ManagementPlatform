@@ -11,6 +11,11 @@ from CTFd.models import ActionLogs, db
 from CTFd.utils.decorators import admins_only
 from CTFd.utils.user import get_current_user
 from CTFd.utils.connector.multiservice_connector import get_token_from_header
+from CTFd.models import (
+    Challenges,
+    Tokens,
+    Users,
+)
 
 action_logs_namespace = Namespace("action_logs", description="Endpoint for action logging")
 
@@ -57,13 +62,18 @@ class ActionLogList(Resource):
                 user = Users.query.filter_by(id=token.user_id).first()
 
             req_data = request.get_json()
+            topic_name = ""
+            challenge = Challenges.query.filter_by(id=req_data.challengeId).first()
+            if challenge is not None:
+                topic_name = challenge.category
             validated_data = ActionLogCreateSchema.parse_obj(req_data)
 
             log = ActionLogs(
                 userId=user.id,
                 actionDate=datetime.utcnow(),
                 actionType=validated_data.actionType,
-                actionDetail=validated_data.actionDetail
+                actionDetail=validated_data.actionDetail,
+                topicName = topic_name
             )
             db.session.add(log)
             db.session.commit()
