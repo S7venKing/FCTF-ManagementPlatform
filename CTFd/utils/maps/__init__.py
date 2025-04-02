@@ -22,7 +22,7 @@ def add_character_to_map(character_data):
         )
 
         if existing_char:
-            remove_character_from_map(character_data.get("id"))
+            return {"status": "error", "message": "Character already exists"}
 
         data = {
             "id": character_data.get("id"),
@@ -30,14 +30,36 @@ def add_character_to_map(character_data):
             "team": character_data.get("team", "No team"),
             "x": character_data.get("position", {}).get("x", randint(-300, 300)),
             "y": character_data.get("position", {}).get("y", randint(-200, 200)),
+            "animation": character_data.get("animation", "idle"),
             "time": datetime.now().strftime("%H:%M:%S"),
             "date": datetime.now().strftime("%Y-%m-%d"),
             "last_active": datetime.now().isoformat(),
         }
 
         characters_on_map.append(data)
-        emit("add-character-to-map", data, broadcast=True)
-        emit("all-characters", {"characters": characters_on_map}, broadcast=True)
+        emit(
+            "add-character-to-map",
+            data,
+            broadcast=True,
+            namespace="/",
+        )
+        emit(
+            "all-characters",
+            {"characters": characters_on_map},
+            broadcast=True,
+            namespace="/",
+        )
+        emit(
+            "user-login-notification",
+            {
+                "name": data["name"],
+                "team": data["team"],
+                "time": data["time"],
+                "date": data["date"],
+            },
+            broadcast=True,
+            namespace="/",
+        )
 
         return {"status": "success", "data": data}
     except Exception as e:
@@ -51,14 +73,29 @@ def remove_character_from_map(user_id):
             (char for char in characters_on_map if char["id"] == user_id), None
         )
 
-        if character:
-            characters_on_map = [
-                char for char in characters_on_map if char["id"] != user_id
-            ]
-            emit("remove-character-from-map", {"id": user_id}, broadcast=True)
-            emit("all-characters", {"characters": characters_on_map}, broadcast=True)
-            return {"status": "success"}
-        return {"status": "not_found"}
+        if not character:
+            return {"status": "error", "message": "Character not found"}
+
+        characters_on_map = [
+            char for char in characters_on_map if char["id"] != user_id
+        ]
+        emit(
+            "remove-character-from-map",
+            {
+                "id": user_id,
+                "name": character.get("name"),
+                "team": character.get("team", "No team"),
+            },
+            broadcast=True,
+            namespace="/",
+        )
+        emit(
+            "all-characters",
+            {"characters": characters_on_map},
+            broadcast=True,
+            namespace="/",
+        )
+        return {"status": "success"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -111,3 +148,16 @@ def update_character_position(user_id, new_position, animation=None):
         return {"status": "not_found"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@socketio.on("request-all-characters")
+def handle_request_all_characters():
+    try:
+        emit(
+            "all-characters",
+            {"characters": characters_on_map},
+            broadcast=True,
+            namespace="/",
+        )
+    except Exception as e:
+        print(f"Error sending all characters: {str(e)}")

@@ -180,7 +180,12 @@ def create_app(config="CTFd.config.Config"):
 
         from CTFd.cache import cache
         from CTFd.utils import import_in_progress
-        from CTFd.utils.maps import add_character_to_map
+        from CTFd.utils.maps import (
+            add_character_to_map,
+            characters_on_map,
+            remove_character_from_map,
+            handle_request_all_characters,
+        )
         from datetime import datetime
 
         # Lấy thông tin dòng và file hiện tại
@@ -440,6 +445,7 @@ def create_app(config="CTFd.config.Config"):
             print(f"Auth token: {request.headers.get('Authorization')}")
             print(f"Query params: {request.args}")
             emit("connection-response", {"status": "connected"})
+            handle_request_all_characters()
 
         @socketio.on("disconnect")
         def handle_disconnect():
@@ -478,11 +484,7 @@ def create_app(config="CTFd.config.Config"):
                 add_result = add_character_to_map(character_data)
 
                 if add_result["status"] != "success":
-                    emit(
-                        "login-error",
-                        {"error": add_result["message"]},
-                        room=request.sid,
-                    )
+                    emit("login-error", {"error": add_result["message"]})
                     return
 
                 emit(
@@ -491,18 +493,8 @@ def create_app(config="CTFd.config.Config"):
                         "status": "success",
                         "message": "Đăng nhập thành công",
                         "user_id": user_id,
-                        "character": {
-                            **add_result["data"],
-                            "last_active": (
-                                add_result["data"]["last_active"].isoformat()
-                                if isinstance(
-                                    add_result["data"]["last_active"], datetime
-                                )
-                                else add_result["data"]["last_active"]
-                            ),
-                        },
+                        "character": add_result["data"],
                     },
-                    room=request.sid,
                 )
 
                 emit(
@@ -515,11 +507,33 @@ def create_app(config="CTFd.config.Config"):
                         "date": datetime.now().strftime("%Y-%m-%d"),
                     },
                     broadcast=True,
+                    namespace="/",
                 )
 
             except Exception as e:
                 print(f"Login error: {str(e)}")
-                emit("login-error", {"error": str(e)}, room=request.sid)
+                emit("login-error", {"error": str(e)})
+
+        @socketio.on("logout")
+        def handle_logout(data):
+            try:
+                user_id = data.get("userId")
+                if not user_id:
+                    return {"status": "error", "message": "Missing user ID"}
+
+                if user_id in user_sessions:
+                    del user_sessions.pop[user_id]
+
+                remove_result = remove_character_from_map(user_id)
+
+                if remove_result["status"] != "success":
+                    print(
+                        f"Failed to remove character for user {user_id}: {remove_result.get('message')}"
+                    )
+
+            except Exception as e:
+                print(f"Logout error: {str(e)}")
+                return {"status": "error", "message": str(e)}
 
         return app
 
