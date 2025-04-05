@@ -576,8 +576,8 @@ class ChallengeAttempt(Resource):
         if not auth_header:
             return jsonify({"message": "Authorization missing"}), 403
 
-        request_data = request.get_json() or request.form.to_dict()
-        if request_data == request.get_json():
+        request_data = request.form or request.form.to_dict()
+        if request_data == request.form:
             challenge_id = request_data["challenge_id"]
         else:
             challenge_id = request_data.get("challenge_id")

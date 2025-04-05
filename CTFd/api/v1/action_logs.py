@@ -16,24 +16,38 @@ from CTFd.models import (
     Tokens,
     Users,
 )
+from CTFd.utils.action_logs import send_action_logs_to_client
 
-action_logs_namespace = Namespace("action_logs", description="Endpoint for action logging")
+action_logs_namespace = Namespace(
+    "action_logs", description="Endpoint for action logging"
+)
 
 # Convert SQLAlchemy model to Pydantic schema for validation
 ActionLogModel = sqlalchemy_to_pydantic(ActionLogs)
 
+
 class ActionLogDetailedSuccessResponse(APIDetailedSuccessResponse):
     data: ActionLogModel
+
 
 class ActionLogListSuccessResponse(APIListSuccessResponse):
     data: List[ActionLogModel]
 
-action_logs_namespace.schema_model("ActionLogDetailedSuccessResponse", ActionLogDetailedSuccessResponse.apidoc())
-action_logs_namespace.schema_model("ActionLogListSuccessResponse", ActionLogListSuccessResponse.apidoc())
+
+action_logs_namespace.schema_model(
+    "ActionLogDetailedSuccessResponse", ActionLogDetailedSuccessResponse.apidoc()
+)
+action_logs_namespace.schema_model(
+    "ActionLogListSuccessResponse", ActionLogListSuccessResponse.apidoc()
+)
+
 
 class ActionLogCreateSchema(BaseModel):
     actionType: int = Field(..., description="Type of action", ge=0)
-    actionDetail: str = Field(..., description="Details of the action", min_length=1, max_length=500)
+    actionDetail: str = Field(
+        ..., description="Details of the action", min_length=1, max_length=500
+    )
+
 
 @action_logs_namespace.route("")
 class ActionLogList(Resource):
@@ -55,34 +69,44 @@ class ActionLogList(Resource):
                 generatedToken = get_token_from_header()
                 print("da nhan token")
                 if not generatedToken:
-                    return {"success": False, "error": "No account or account has been banned"}, 403
+                    return {
+                        "success": False,
+                        "error": "No account or account has been banned",
+                    }, 403
                 token = Tokens.query.filter_by(value=generatedToken).first()
                 if token is None:
                     return {"success": False, "error": "Token not found"}, 404
                 user = Users.query.filter_by(id=token.user_id).first()
 
             req_data = request.get_json()
-            topic_name = ""
-            challenge = Challenges.query.filter_by(id=req_data.challengeId).first()
-            if challenge is not None:
-                topic_name = challenge.category
+            topic_name = "Null"
+            challenge_id = req_data.get("challengeId")
+            if challenge_id:
+                challenge = Challenges.query.filter_by(id=challenge_id).first()
+                if challenge:
+                    topic_name = challenge.category
+
             validated_data = ActionLogCreateSchema.parse_obj(req_data)
 
             log = ActionLogs(
                 userId=user.id,
-                actionDate=datetime.utcnow(),
+                actionDate=datetime.now().isoformat(),
                 actionType=validated_data.actionType,
                 actionDetail=validated_data.actionDetail,
-                topicName = topic_name
+                topicName=topic_name,
             )
             db.session.add(log)
             db.session.commit()
+
+            logs = ActionLogs.query.order_by(ActionLogs.actionDate.desc()).all()
+            send_action_logs_to_client([log.to_dict() for log in logs])
 
             return {"success": True, "data": log.to_dict()}, 200
         except ValidationError as e:
             return {"success": False, "error": e.errors()}, 400
         except Exception as e:
             return {"success": False, "error": str(e)}, 500
+
 
 @action_logs_namespace.route("/<int:log_id>")
 class ActionLog(Resource):
@@ -93,7 +117,10 @@ class ActionLog(Resource):
             if not user:
                 generatedToken = get_token_from_header()
                 if not generatedToken:
-                    return {"success": False, "error": "No account or account has been banned"}, 403
+                    return {
+                        "success": False,
+                        "error": "No account or account has been banned",
+                    }, 403
                 token = Tokens.query.filter_by(value=generatedToken).first()
                 if token is None:
                     return {"success": False, "error": "Token not found"}, 404
@@ -124,6 +151,7 @@ class ActionLog(Resource):
         except Exception as e:
             return {"success": False, "error": str(e)}, 500
 
+
 @action_logs_namespace.route("/user/<int:user_id>")
 class UserActionLog(Resource):
     def get(self, user_id):
@@ -133,7 +161,10 @@ class UserActionLog(Resource):
             if not user:
                 generatedToken = get_token_from_header()
                 if not generatedToken:
-                    return {"success": False, "error": "No account or account has been banned"}, 403
+                    return {
+                        "success": False,
+                        "error": "No account or account has been banned",
+                    }, 403
                 token = Tokens.query.filter_by(value=generatedToken).first()
                 if token is None:
                     return {"success": False, "error": "Token not found"}, 404
@@ -141,7 +172,10 @@ class UserActionLog(Resource):
 
             logs = ActionLogs.query.filter_by(userId=user_id).all()
             if not logs:
-                return {"success": False, "error": "No action logs found for this user"}, 404
+                return {
+                    "success": False,
+                    "error": "No action logs found for this user",
+                }, 404
 
             if user.type != "admin" and user.id != user_id:
                 return {"success": False, "error": "Permission denied"}, 403
