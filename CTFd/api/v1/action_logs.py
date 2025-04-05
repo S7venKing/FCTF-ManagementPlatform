@@ -79,12 +79,13 @@ class ActionLogList(Resource):
                 user = Users.query.filter_by(id=token.user_id).first()
 
             req_data = request.get_json()
+            print("Request Data:", req_data)
+
             topic_name = "Null"
-            if "challengeId" in req_data:
-                challenge = Challenges.query.filter_by(
-                    id=req_data.get("challengeId")
-                ).first()
-                if challenge is not None:
+            challenge_id = req_data.get("challenge_id")
+            if challenge_id:
+                challenge = Challenges.query.filter_by(id=challenge_id).first()
+                if challenge:
                     topic_name = challenge.category
 
             validated_data = ActionLogCreateSchema.parse_obj(req_data)
@@ -101,7 +102,11 @@ class ActionLogList(Resource):
 
             # Gửi danh sách action logs qua socket
             logs = ActionLogs.query.order_by(ActionLogs.actionDate.desc()).all()
-            send_action_logs_to_client([log.to_dict() for log in logs])
+            logs_with_usernames = [
+                {**log.to_dict(), "userName": Users.query.get(log.userId).name}
+                for log in logs
+            ]
+            send_action_logs_to_client(logs_with_usernames)
 
             return {"success": True, "data": log.to_dict()}, 200
         except ValidationError as e:
