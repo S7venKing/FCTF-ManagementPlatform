@@ -81,6 +81,9 @@ class ActionLogList(Resource):
             req_data = request.get_json()
             print("Request Data:", req_data)
 
+            if not req_data or "challenge_id" not in req_data:
+                return {"success": False, "error": "Invalid request data"}, 400
+
             topic_name = "Null"
             challenge_id = req_data.get("challenge_id")
             if challenge_id:
@@ -100,11 +103,16 @@ class ActionLogList(Resource):
             db.session.add(log)
             db.session.commit()
 
-            # Gửi danh sách action logs qua socket
-            logs = ActionLogs.query.order_by(ActionLogs.actionDate.desc()).all()
+            logs_with_usernames = (
+                db.session.query(ActionLogs, Users.name.label("userName"))
+                .join(Users, ActionLogs.userId == Users.id)
+                .order_by(ActionLogs.actionDate.desc())
+                .all()
+            )
+
             logs_with_usernames = [
-                {**log.to_dict(), "userName": Users.query.get(log.userId).name}
-                for log in logs
+                {**log.ActionLogs.to_dict(), "userName": log.userName}
+                for log in logs_with_usernames
             ]
             send_action_logs_to_client(logs_with_usernames)
 
