@@ -80,10 +80,11 @@ class ActionLogList(Resource):
 
             req_data = request.get_json()
             topic_name = "Null"
-            challenge_id = req_data.get("challengeId")
-            if challenge_id:
-                challenge = Challenges.query.filter_by(id=challenge_id).first()
-                if challenge:
+            if "challengeId" in req_data:
+                challenge = Challenges.query.filter_by(
+                    id=req_data.get("challengeId")
+                ).first()
+                if challenge is not None:
                     topic_name = challenge.category
 
             validated_data = ActionLogCreateSchema.parse_obj(req_data)
@@ -98,6 +99,7 @@ class ActionLogList(Resource):
             db.session.add(log)
             db.session.commit()
 
+            # Gửi danh sách action logs qua socket
             logs = ActionLogs.query.order_by(ActionLogs.actionDate.desc()).all()
             send_action_logs_to_client([log.to_dict() for log in logs])
 
