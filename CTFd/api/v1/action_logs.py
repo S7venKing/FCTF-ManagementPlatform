@@ -12,11 +12,14 @@ from CTFd.utils.decorators import admins_only
 from CTFd.utils.user import get_current_user
 from CTFd.utils.connector.multiservice_connector import get_token_from_header
 from CTFd.models import (
-    Challenges,
     Tokens,
     Users,
 )
-from CTFd.utils.action_logs import send_action_logs_to_client
+from CTFd.utils.action_logs import (
+    send_action_logs_to_client,
+    send_challenge_selected_event,
+    get_topic_name,
+)
 
 action_logs_namespace = Namespace(
     "action_logs", description="Endpoint for action logging"
@@ -84,13 +87,7 @@ class ActionLogList(Resource):
             if not req_data or "challenge_id" not in req_data:
                 return {"success": False, "error": "Invalid request data"}, 400
 
-            topic_name = "Null"
-            challenge_id = req_data.get("challenge_id")
-            if challenge_id:
-                challenge = Challenges.query.filter_by(id=challenge_id).first()
-                if challenge:
-                    topic_name = challenge.category
-
+            topic_name = get_topic_name(req_data.get("challenge_id"))
             validated_data = ActionLogCreateSchema.parse_obj(req_data)
 
             log = ActionLogs(
@@ -115,6 +112,13 @@ class ActionLogList(Resource):
                 for log in logs_with_usernames
             ]
             send_action_logs_to_client(logs_with_usernames)
+            send_challenge_selected_event(
+                user_id=user.id,
+                topic_name=topic_name,
+                action_type=validated_data.actionType,
+                challenge_id=req_data.get("challenge_id"),
+                action_date=datetime.now().isoformat(),
+            )
 
             return {"success": True, "data": log.to_dict()}, 200
         except ValidationError as e:

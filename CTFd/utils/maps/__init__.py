@@ -68,34 +68,12 @@ def add_character_to_map(character_data):
 
 def remove_character_from_map(user_id):
     try:
-        global characters_on_map
-        character = next(
-            (char for char in characters_on_map if char["id"] == user_id), None
-        )
-
-        if not character:
-            return {"status": "error", "message": "Character not found"}
-
-        characters_on_map = [
-            char for char in characters_on_map if char["id"] != user_id
-        ]
         emit(
             "remove-character-from-map",
-            {
-                "id": user_id,
-                "name": character.get("name"),
-                "team": character.get("team", "No team"),
-            },
+            {"id": user_id},
             broadcast=True,
-            namespace="/",
+            namespace="/"
         )
-        emit(
-            "all-characters",
-            {"characters": characters_on_map},
-            broadcast=True,
-            namespace="/",
-        )
-        return {"status": "success"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -161,3 +139,14 @@ def handle_request_all_characters():
         )
     except Exception as e:
         print(f"Error sending all characters: {str(e)}")
+
+def send_challenge_positions_to_clients(positions):
+    try:
+        emit(
+            "update-challenge-positions",
+            {"positions": positions},
+            broadcast=True,
+            namespace="/",
+        )
+    except Exception as e:
+        print(f"Error sending challenge positions to clients: {e}")
