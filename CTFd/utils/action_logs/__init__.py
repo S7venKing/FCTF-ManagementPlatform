@@ -13,16 +13,20 @@ def send_action_logs_to_client(logs):
 
 
 def send_challenge_selected_event(
-    user_id, topic_name, action_type, challenge_id, action_date
+    user_id, topic_name, challenge_id, challenge_name, action_type, action_date
 ):
     try:
         if not user_id or not topic_name or not challenge_id or not action_date:
             raise ValueError("Invalid parameters for challenge-selected event")
 
+        challenge = Challenges.query.filter_by(id=challenge_id).first()
+        challenge_name = challenge.name if challenge else "Unknown"
+
         log_entry = {
             "userId": user_id,
             "topicName": topic_name,
             "challengeId": challenge_id,
+            "challengeName": challenge_name,
             "actionType": action_type,
             "actionDate": action_date,
         }

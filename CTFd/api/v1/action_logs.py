@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource
 from datetime import datetime
 from pydantic import BaseModel, Field, ValidationError
 from flask import jsonify
-from CTFd.models import Tokens, Users
+from CTFd.models import Tokens, Users, Challenges
 from CTFd.api.v1.helpers.schemas import sqlalchemy_to_pydantic
 from CTFd.api.v1.schemas import APIDetailedSuccessResponse, APIListSuccessResponse
 from CTFd.models import ActionLogs, db
@@ -57,8 +57,20 @@ class ActionLogList(Resource):
     def get(self):
         """Retrieve action logs"""
         try:
-            logs = ActionLogs.query.order_by(ActionLogs.actionDate.desc()).all()
-            response = [log.to_dict() for log in logs]
+            logs_with_usernames = (
+                db.session.query(ActionLogs, Users.name.label("userName"))
+                .join(Users, ActionLogs.userId == Users.id)
+                .order_by(ActionLogs.actionDate.desc())
+                .all()
+            )
+
+            if not logs_with_usernames:
+                return {"success": False, "error": "No logs found"}, 404
+
+            response = [
+                {**log.ActionLogs.to_dict(), "userName": log.userName}
+                for log in logs_with_usernames
+            ]
             return {"success": True, "data": response}, 200
         except Exception as e:
             return {"success": False, "error": str(e)}, 500
@@ -87,7 +99,12 @@ class ActionLogList(Resource):
             if not req_data or "challenge_id" not in req_data:
                 return {"success": False, "error": "Invalid request data"}, 400
 
-            topic_name = get_topic_name(req_data.get("challenge_id"))
+            challenge_id = req_data.get("challenge_id")
+            topic_name = get_topic_name(challenge_id)
+
+            challenge = Challenges.query.filter_by(id=challenge_id).first()
+            challenge_name = challenge.name if challenge else "Unknown"
+
             validated_data = ActionLogCreateSchema.parse_obj(req_data)
 
             log = ActionLogs(
@@ -115,8 +132,9 @@ class ActionLogList(Resource):
             send_challenge_selected_event(
                 user_id=user.id,
                 topic_name=topic_name,
+                challenge_id=challenge_id,
+                challenge_name=challenge_name,
                 action_type=validated_data.actionType,
-                challenge_id=req_data.get("challenge_id"),
                 action_date=datetime.now().isoformat(),
             )
 
