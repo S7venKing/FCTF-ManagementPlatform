@@ -57,19 +57,32 @@ class ActionLogList(Resource):
     def get(self):
         """Retrieve action logs"""
         try:
-            logs_with_usernames = (
-                db.session.query(ActionLogs, Users.name.label("userName"))
+            # Join ActionLogs, Users, and Challenges to get userName and challengeId
+            logs_with_details = (
+                db.session.query(
+                    ActionLogs,
+                    Users.name.label("userName"),
+                    Challenges.id.label("challengeId"),
+                    Challenges.name.label("challengeName"),
+                )
                 .join(Users, ActionLogs.userId == Users.id)
+                .outerjoin(Challenges, ActionLogs.topicName == Challenges.category)
                 .order_by(ActionLogs.actionDate.desc())
                 .all()
             )
 
-            if not logs_with_usernames:
+            if not logs_with_details:
                 return {"success": False, "error": "No logs found"}, 404
 
+            # Add challengeId to the response
             response = [
-                {**log.ActionLogs.to_dict(), "userName": log.userName}
-                for log in logs_with_usernames
+                {
+                    **log.ActionLogs.to_dict(),
+                    "userName": log.userName,
+                    "challengeId": log.challengeId,
+                    "challengeName": log.challengeName,
+                }
+                for log in logs_with_details
             ]
             return {"success": True, "data": response}, 200
         except Exception as e:
