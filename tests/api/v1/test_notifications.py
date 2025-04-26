@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from CTFd.models import Notifications
+from CTFd.models import Notifications, Users
 from tests.helpers import (
     create_ctfd,
     destroy_ctfd,
@@ -42,7 +42,8 @@ def test_api_notifications_post_admin():
     """Can the users post /api/v1/notifications if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, name="admin") as client:
             r = client.post(
                 "/api/v1/notifications", json={"title": "title", "content": "content"}
@@ -55,7 +56,8 @@ def test_api_delete_notifications_by_admin():
     """Test that an admin can delete notifications"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_notification(app.db)
         assert Notifications.query.count() == 1
         with login_as_user(app, name="admin") as client:
@@ -70,8 +72,9 @@ def test_api_delete_notifications_by_user():
     """Test that a non-admin cannot delete notifications"""
     app = create_ctfd()
     with app.app_context():
+        admin_user = Users.query.filter_by(name="admin").first()
         register_user(app)
-        gen_challenge(app.db)
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_notification(app.db)
         assert Notifications.query.count() == 1
         with login_as_user(app) as client:

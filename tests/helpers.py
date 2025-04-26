@@ -259,15 +259,19 @@ def register_team(app, name="team", password="password", raise_for_error=True):
 def login_as_user(app, name="user", password="password", raise_for_error=True):
     with app.app_context():
         with app.test_client() as client:
-            client.get("/login")
+            r = client.get("/login")
+            print(f"GET /login status: {r.status_code}")
             with client.session_transaction() as sess:
                 data = {"name": name, "password": password, "nonce": sess.get("nonce")}
-            client.post("/login", data=data)
+                print(f"Login data: {data}")
+            r = client.post("/login", data=data)
+            print(f"POST /login status: {r.status_code}, response: {r.data.decode()}")
             if raise_for_error:
                 with client.session_transaction() as sess:
-                    assert sess["id"]
-                    assert sess["nonce"]
-                    assert sess["hash"]
+                    print(f"Session after login: {sess}")
+                    assert sess["id"], "Session missing 'id'"
+                    assert sess["nonce"], "Session missing 'nonce'"
+                    assert sess["hash"], "Session missing 'hash'"
             return client
 
 
@@ -352,6 +356,7 @@ def gen_challenge(
     category="chal_category",
     type="standard",
     state="visible",
+    user_id=None,
     **kwargs
 ):
     chal = Challenges(
@@ -361,6 +366,7 @@ def gen_challenge(
         category=category,
         type=type,
         state=state,
+        user_id=user_id,
         **kwargs
     )
     db.session.add(chal)
@@ -604,9 +610,10 @@ def gen_bracket(
 
 
 def simulate_user_activity(db, user):
+    admin_user = Users.query.filter_by(name="admin").first()
     gen_tracking(db, user_id=user.id)
     gen_award(db, user_id=user.id)
-    challenge = gen_challenge(db)
+    challenge = gen_challenge(db, user_id=admin_user.id)
     flag = gen_flag(db, challenge_id=challenge.id)
     hint = gen_hint(db, challenge_id=challenge.id)
 

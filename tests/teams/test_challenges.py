@@ -3,6 +3,7 @@
 
 from CTFd.utils import set_config
 from CTFd.utils.scores import get_standings
+from CTFd.models import Users
 from tests.helpers import (
     create_ctfd,
     destroy_ctfd,
@@ -19,6 +20,10 @@ def test_challenge_team_submit():
     """Is a user's solved challenge reflected by other team members"""
     app = create_ctfd(user_mode="teams")
     with app.app_context():
+        admin_user = Users.query.filter_by(email="admin@examplectf.com").first()
+        if not admin_user:
+            admin_user = gen_user(app.db, name="admin", email="admin@examplectf.com")
+            app.db.session.commit()
         user = gen_user(app.db)
         second_user = gen_user(app.db, name="user", email="second@examplectf.com")
         team = gen_team(app.db)
@@ -26,7 +31,7 @@ def test_challenge_team_submit():
         second_user.team_id = team.id
         team.members.append(user)
         team.members.append(second_user)
-        gen_challenge(app.db)
+        gen_challenge(app.db,user_id=admin_user.id)
         gen_flag(app.db, 1)
         app.db.session.commit()
         with login_as_user(app, name="user_name") as client:
@@ -35,7 +40,8 @@ def test_challenge_team_submit():
         with login_as_user(app) as second_client:
             flag = {"challenge_id": 1, "submission": "flag"}
             r = second_client.post("/api/v1/challenges/attempt", json=flag)
-            assert r.json["data"]["status"] == "already_solved"
+            data = r.json()
+            assert data["data"]["status"] == "already_solved"
         standings = get_standings()
         assert standings[0].name == "team_name"
         assert standings[0].score == 100
@@ -46,8 +52,15 @@ def test_anonymous_users_view_public_challenges_without_team():
     """Test that if challenges are public, users without team can still view them"""
     app = create_ctfd(user_mode="teams")
     with app.app_context():
+        admin_user = Users.query.filter_by(email="admin@examplectf.com").first()
+        if not admin_user:
+            admin_user = gen_user(app.db, name="admin", email="admin@examplectf.com")
+            app.db.session.add(admin_user)
+            app.db.session.commit()
+        else:
+            admin_user = app.db.session.merge(admin_user)
         register_user(app)
-        gen_challenge(app.db)
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/challenges")
             assert r.status_code == 302

@@ -18,8 +18,9 @@ def test_api_challenges_admins_can_bypass_requirements():
     app = create_ctfd()
     with app.app_context():
         # Create challenges
-        prereq_id = gen_challenge(app.db).id
-        chal_obj = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        prereq_id = gen_challenge(app.db, user_id=admin_user.id).id
+        chal_obj = gen_challenge(app.db, user_id=admin_user.id)
         chal_obj.requirements = {"prerequisites": [prereq_id]}
 
         register_user(app)
@@ -71,8 +72,9 @@ def test_api_challenges_challenge_with_requirements():
     """Does the challenge list API show challenges with requirements met?"""
     app = create_ctfd()
     with app.app_context():
-        prereq_id = gen_challenge(app.db).id
-        chal_obj = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        prereq_id = gen_challenge(app.db, user_id=admin_user.id).id
+        chal_obj = gen_challenge(app.db, user_id=admin_user.id)
         chal_obj.requirements = {"prerequisites": [prereq_id]}
         chal_id = chal_obj.id
         # Create a new user which will solve the prerequisite
@@ -99,8 +101,9 @@ def test_api_challenges_challenge_with_requirements_hidden_user():
     """Does the challenge list API show gated challenges to a hidden user?"""
     app = create_ctfd()
     with app.app_context():
-        prereq_id = gen_challenge(app.db).id
-        chal_obj = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        prereq_id = gen_challenge(app.db, user_id=admin_user.id).id
+        chal_obj = gen_challenge(app.db, user_id=admin_user.id)
         chal_obj.requirements = {"prerequisites": [prereq_id]}
         chal_id = chal_obj.id
         # Create a new user which will solve the prerequisite and hide them
@@ -129,8 +132,9 @@ def test_api_challenges_challenge_with_requirements_banned_user():
     """Does the challenge list API show gated challenges to a banned user?"""
     app = create_ctfd()
     with app.app_context():
-        prereq_id = gen_challenge(app.db).id
-        chal_obj = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        prereq_id = gen_challenge(app.db, user_id=admin_user.id).id
+        chal_obj = gen_challenge(app.db, user_id=admin_user.id)
         chal_obj.requirements = {"prerequisites": [prereq_id]}
         # Create a new user which will solve the prerequisite and ban them
         register_user(app)
@@ -148,8 +152,9 @@ def test_api_challenges_challenge_with_requirements_no_user():
     app = create_ctfd()
     with app.app_context():
         set_config("challenge_visibility", "public")
-        prereq_id = gen_challenge(app.db).id
-        chal_obj = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        prereq_id = gen_challenge(app.db, user_id=admin_user.id).id
+        chal_obj = gen_challenge(app.db, user_id=admin_user.id)
         chal_obj.requirements = {"prerequisites": [prereq_id]}
         # Create a new user which will solve the prerequisite
         register_user(app)

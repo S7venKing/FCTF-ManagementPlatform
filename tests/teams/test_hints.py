@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from CTFd.models import Users
 from CTFd.utils.scores import get_standings
 from tests.helpers import (
     create_ctfd,
@@ -18,6 +18,7 @@ def test_hint_team_unlock():
     """Is a user's unlocked hint reflected on other team members"""
     app = create_ctfd(user_mode="teams")
     with app.app_context():
+        admin_user = Users.query.filter_by(name="admin").first()
         user = gen_user(app.db)
         second_user = gen_user(app.db, name="user", email="second@examplectf.com")
         team = gen_team(app.db)
@@ -25,7 +26,7 @@ def test_hint_team_unlock():
         second_user.team_id = team.id
         team.members.append(user)
         team.members.append(second_user)
-        chal = gen_challenge(app.db)
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id, content="hint", cost=1, type="standard")
         # Give the points to the user that doesn't unlock
         # Users that unlock hints should be able to unlock but cost their team points
@@ -74,6 +75,7 @@ def test_hint_team_unlocking_without_points():
     """Test that teams cannot enter negative point valuations from unlocking hints"""
     app = create_ctfd(user_mode="teams")
     with app.app_context():
+        admin_user = Users.query.filter_by(name="admin").first()
         user = gen_user(app.db)
         second_user = gen_user(app.db, name="user", email="second@examplectf.com")
         team = gen_team(app.db)
@@ -81,7 +83,7 @@ def test_hint_team_unlocking_without_points():
         second_user.team_id = team.id
         team.members.append(user)
         team.members.append(second_user)
-        chal = gen_challenge(app.db)
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id, content="hint", cost=1, type="standard")
         app.db.session.commit()
         with login_as_user(app, name="user_name") as client:
@@ -103,7 +105,8 @@ def test_teams_dont_prevent_other_teams_from_unlocking_hints():
     """Unlocks from one user don't affect other users"""
     app = create_ctfd(user_mode="teams")
     with app.app_context():
-        chal = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id, content="This is a hint", cost=1, type="standard")
 
         team1 = gen_team(app.db, name="team1", email="team1@examplectf.com")

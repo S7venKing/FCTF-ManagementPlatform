@@ -124,9 +124,10 @@ def test_api_challenges_get_admin():
     """Can a user GET /api/v1/challenges if admin without team"""
     app = create_ctfd(user_mode="teams")
     with app.app_context():
-        gen_challenge(app.db)
-        # Admin does not have a team but should still be able to see challenges
         user = Users.query.filter_by(id=1).first()
+
+        gen_challenge(app.db,user_id=user.id)
+        # Admin does not have a team but should still be able to see challenges
         assert user.team_id is None
         with login_as_user(app, "admin") as admin:
             r = admin.get("/api/v1/challenges", json="")
@@ -139,9 +140,14 @@ def test_api_challenges_get_admin():
 def test_api_challenges_get_hidden_admin():
     """Can an admin see hidden challenges in API list response"""
     app = create_ctfd()
+    # Get the admin user created by setup_ctfd
     with app.app_context():
-        gen_challenge(app.db, state="hidden")
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        if not admin_user:
+            raise ValueError("Admin user not found in database")
+        
+        gen_challenge(app.db, state="hidden",user_id=admin_user.id)
+        gen_challenge(app.db, user_id=admin_user.id)
 
         with login_as_user(app, "admin") as admin:
             challenges_list = admin.get("/api/v1/challenges", json="").get_json()[
@@ -159,7 +165,8 @@ def test_api_challenges_get_solve_status():
     """Does the challenge list API show the current user's solve status?"""
     app = create_ctfd()
     with app.app_context():
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         register_user(app)
         client = login_as_user(app)
         # First request - unsolved
@@ -183,7 +190,8 @@ def test_api_challenges_get_solve_count():
     app = create_ctfd()
     with app.app_context():
         set_config("challenge_visibility", "public")
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         with app.test_client() as client:
             _USER_BASE = 2  # First user we create will have this ID
             _MAX = 3  # arbitrarily selected
@@ -211,9 +219,10 @@ def test_api_challenges_get_solve_info_score_visibility():
     app = create_ctfd()
     with app.app_context(), app.test_client() as pub_client:
         set_config("challenge_visibility", "public")
+        admin_user = Users.query.filter_by(name="admin").first()
 
         # Generate a challenge, user and solve to test the API with
-        chal_id = gen_challenge(app.db).id
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         register_user(app)
         gen_solve(app.db, user_id=2, challenge_id=chal_id)
 
@@ -271,9 +280,10 @@ def test_api_challenges_get_solve_info_account_visibility():
     app = create_ctfd()
     with app.app_context(), app.test_client() as pub_client:
         set_config("challenge_visibility", "public")
+        admin_user = Users.query.filter_by(name="admin").first()
 
         # Generate a challenge, user and solve to test the API with
-        chal_id = gen_challenge(app.db).id
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         register_user(app)
         gen_solve(app.db, user_id=2, challenge_id=chal_id)
 
@@ -325,7 +335,9 @@ def test_api_challenges_get_solve_count_frozen():
     with app.app_context(), app.test_client() as client:
         set_config("challenge_visibility", "public")
         set_config("freeze", "1507262400")
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
 
         with freeze_time("2017-10-4"):
             # Create a user and generate a solve from before the freeze time
@@ -356,7 +368,9 @@ def test_api_challenges_get_solve_count_hidden_user():
     app = create_ctfd()
     with app.app_context():
         set_config("challenge_visibility", "public")
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         # The admin is expected to be hidden by default
         gen_solve(app.db, user_id=1, challenge_id=chal_id)
         with app.test_client() as client:
@@ -380,7 +394,9 @@ def test_api_challenges_get_solve_count_banned_user():
     app = create_ctfd()
     with app.app_context():
         set_config("challenge_visibility", "public")
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
 
         # Create a banned user and generate a solve for the challenge
         register_user(app)
@@ -411,6 +427,11 @@ def test_api_challenges_post_admin():
     """Can a user post /api/v1/challenges if admin"""
     app = create_ctfd()
     with app.app_context():
+        from CTFd.models import Users, db
+        admin_user = Users.query.filter_by(name="admin").first()
+        if not admin_user:
+            raise ValueError("Admin user not found")
+        print(f"Admin user: {admin_user.name}, ID: {admin_user.id}")
         with login_as_user(app, "admin") as client:
             r = client.post(
                 "/api/v1/challenges",
@@ -421,11 +442,12 @@ def test_api_challenges_post_admin():
                     "value": "100",
                     "state": "hidden",
                     "type": "standard",
+                    "user_id": admin_user.id,
                 },
             )
+            print(f"Challenge POST response: {r.get_json()}")
             assert r.status_code == 200
     destroy_ctfd(app)
-
 
 def test_api_challenge_types_post_non_admin():
     """Can a non-admin get /api/v1/challenges/types if not admin"""
@@ -452,8 +474,9 @@ def test_api_challenge_get_visibility_public():
     app = create_ctfd()
     with app.app_context():
         set_config("challenge_visibility", "public")
+        admin_user = Users.query.filter_by(name="admin").first()
         with app.test_client() as client:
-            gen_challenge(app.db)
+            gen_challenge(app.db, user_id=admin_user.id)
             r = client.get("/api/v1/challenges/1")
             assert r.status_code == 200
             set_config("challenge_visibility", "private")
@@ -467,7 +490,9 @@ def test_api_challenge_get_ctftime_public():
     app = create_ctfd()
     with app.app_context(), freeze_time("2017-10-7"):
         set_config("challenge_visibility", "public")
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1")
             assert r.status_code == 200
@@ -486,7 +511,8 @@ def test_api_challenge_get_visibility_private():
     """Can a private user get /api/v1/challenges/<challenge_id> if challenge_visibility is private/public"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1")
@@ -501,7 +527,8 @@ def test_api_challenge_get_with_admin_only_account_visibility():
     """Can a private user get /api/v1/challenges/<challenge_id> if account_visibility is admins_only"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1")
@@ -516,7 +543,8 @@ def test_api_challenge_get_ctftime_private():
     """Can a private user get /api/v1/challenges/<challenge_id> if ctftime is over"""
     app = create_ctfd()
     with app.app_context(), freeze_time("2017-10-7"):
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1")
@@ -543,7 +571,8 @@ def test_api_challenge_get_verified_emails():
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("verify_emails", True)
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_user(
             app.db,
             name="user_name",
@@ -582,7 +611,8 @@ def test_api_challenge_get_solve_status():
     """Does the challenge detail API show the current user's solve status?"""
     app = create_ctfd()
     with app.app_context():
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         chal_uri = "/api/v1/challenges/{}".format(chal_id)
         register_user(app)
         client = login_as_user(app)
@@ -605,8 +635,10 @@ def test_api_challenge_get_solve_info_score_visibility():
     app = create_ctfd()
     with app.app_context(), app.test_client() as pub_client:
         set_config("challenge_visibility", "public")
+        admin_user = Users.query.filter_by(name="admin").first()
+
         # Generate a challenge, user and solve to test the API with
-        chal_id = gen_challenge(app.db).id
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         chal_uri = "/api/v1/challenges/{}".format(chal_id)
         register_user(app)
         gen_solve(app.db, user_id=2, challenge_id=chal_id)
@@ -666,7 +698,8 @@ def test_api_challenge_get_solve_info_account_visibility():
     with app.app_context(), app.test_client() as pub_client:
         set_config("challenge_visibility", "public")
         # Generate a challenge, user and solve to test the API with
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         chal_uri = "/api/v1/challenges/{}".format(chal_id)
         register_user(app)
         gen_solve(app.db, user_id=2, challenge_id=chal_id)
@@ -728,7 +761,8 @@ def test_api_challenge_get_solve_count():
     app = create_ctfd()
     with app.app_context():
         set_config("challenge_visibility", "public")
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         chal_uri = "/api/v1/challenges/{}".format(chal_id)
         with app.test_client() as client:
             _USER_BASE = 2  # First user we create will have this ID
@@ -759,7 +793,8 @@ def test_api_challenge_get_solve_count_frozen():
         set_config("challenge_visibility", "public")
         # Friday, October 6, 2017 4:00:00 AM
         set_config("freeze", "1507262400")
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         chal_uri = "/api/v1/challenges/{}".format(chal_id)
 
         with freeze_time("2017-10-4"):
@@ -791,7 +826,8 @@ def test_api_challenge_get_solve_count_hidden_user():
     app = create_ctfd()
     with app.app_context():
         set_config("challenge_visibility", "public")
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         chal_uri = "/api/v1/challenges/{}".format(chal_id)
         # The admin is expected to be hidden by default
         gen_solve(app.db, user_id=1, challenge_id=chal_id)
@@ -809,7 +845,8 @@ def test_api_challenge_get_solve_count_banned_user():
     app = create_ctfd()
     with app.app_context():
         set_config("challenge_visibility", "public")
-        chal_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal_id = gen_challenge(app.db, user_id=admin_user.id).id
         chal_uri = "/api/v1/challenges/{}".format(chal_id)
 
         # Create a user and generate a solve for the challenge
@@ -841,7 +878,8 @@ def test_api_challenge_patch_non_admin():
     """Can a user patch /api/v1/challenges/<challenge_id> if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.patch("/api/v1/challenges/1", json="")
             assert r.status_code == 403
@@ -852,7 +890,8 @@ def test_api_challenge_patch_admin():
     """Can a user patch /api/v1/challenges/<challenge_id> if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as client:
             r = client.patch(
                 "/api/v1/challenges/1", json={"name": "chal_name", "value": "200"}
@@ -866,7 +905,8 @@ def test_api_challenge_delete_non_admin():
     """Can a user delete /api/v1/challenges/<challenge_id> if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.delete("/api/v1/challenges/1", json="")
             assert r.status_code == 403
@@ -877,7 +917,8 @@ def test_api_challenge_delete_admin():
     """Can a user delete /api/v1/challenges/<challenge_id> if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as client:
             r = client.delete("/api/v1/challenges/1", json="")
             assert r.status_code == 200
@@ -889,7 +930,8 @@ def test_api_challenge_with_properties_delete_admin():
     """Can a user delete /api/v1/challenges/<challenge_id> if the challenge has other properties"""
     app = create_ctfd()
     with app.app_context():
-        challenge = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        challenge = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, challenge_id=challenge.id)
         gen_tag(app.db, challenge_id=challenge.id)
         gen_flag(app.db, challenge_id=challenge.id)
@@ -915,7 +957,8 @@ def test_api_challenge_attempt_post_public():
     """Can a public user post /api/v1/challenges/attempt"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.post("/api/v1/challenges/attempt", json="")
             assert r.status_code == 403
@@ -926,7 +969,8 @@ def test_api_challenge_attempt_post_private():
     """Can an private user post /api/v1/challenges/attempt"""
     app = create_ctfd()
     with app.app_context():
-        challenge_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        challenge_id = gen_challenge(app.db, user_id=admin_user.id).id
         gen_flag(app.db, challenge_id)
         register_user(app)
         with login_as_user(app) as client:
@@ -948,7 +992,7 @@ def test_api_challenge_attempt_post_private():
             )
             assert r.status_code == 200
             assert r.get_json()["data"]["status"] == "already_solved"
-        challenge_id = gen_challenge(app.db).id
+        challenge_id = gen_challenge(app.db, user_id=admin_user.id).id
         gen_flag(app.db, challenge_id)
         with login_as_user(app) as client:
             for _ in range(10):
@@ -963,7 +1007,8 @@ def test_api_challenge_attempt_post_private():
 
     app = create_ctfd(user_mode="teams")
     with app.app_context():
-        challenge_id = gen_challenge(app.db).id
+        admin_user = Users.query.filter_by(name="admin").first()
+        challenge_id = gen_challenge(app.db, user_id=admin_user.id).id
         gen_flag(app.db, challenge_id)
         register_user(app)
         team_id = gen_team(app.db).id
@@ -989,7 +1034,7 @@ def test_api_challenge_attempt_post_private():
             )
             assert r.status_code == 200
             assert r.get_json()["data"]["status"] == "already_solved"
-        challenge_id = gen_challenge(app.db).id
+        challenge_id = gen_challenge(app.db, user_id=admin_user.id).id
         gen_flag(app.db, challenge_id)
         with login_as_user(app) as client:
             for _ in range(10):
@@ -1007,7 +1052,8 @@ def test_api_challenge_attempt_post_admin():
     """Can an admin user post /api/v1/challenges/attempt"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_flag(app.db, 1)
         with login_as_user(app, "admin") as client:
             r = client.post(
@@ -1035,7 +1081,8 @@ def test_api_challenge_get_solves_visibility_public():
     """Can a public user get /api/v1/challenges/<challenge_id>/solves if challenge_visibility is private/public"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             set_config("challenge_visibility", "public")
             r = client.get("/api/v1/challenges/1/solves", json="")
@@ -1051,7 +1098,8 @@ def test_api_challenge_get_solves_ctftime_public():
     app = create_ctfd()
     with app.app_context(), freeze_time("2017-10-7"):
         set_config("challenge_visibility", "public")
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/solves")
             assert r.status_code == 200
@@ -1075,11 +1123,12 @@ def test_api_challenge_get_solves_ctf_frozen():
 
         # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("freeze", "1507262400")
+        admin_user = Users.query.filter_by(name="admin").first()
         with freeze_time("2017-10-4"):
-            chal = gen_challenge(app.db)
+            chal = gen_challenge(app.db, user_id=admin_user.id)
             chal_id = chal.id
             gen_solve(app.db, user_id=2, challenge_id=chal_id)
-            chal2 = gen_challenge(app.db)
+            chal2 = gen_challenge(app.db, user_id=admin_user.id)
             chal2_id = chal2.id
 
         with freeze_time("2017-10-8"):
@@ -1129,7 +1178,8 @@ def test_api_challenge_get_solves_visibility_private():
     """Can a private user get /api/v1/challenges/<challenge_id>/solves if challenge_visibility is private/public"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1/solves")
@@ -1144,7 +1194,8 @@ def test_api_challenge_get_solves_ctftime_private():
     """Can a private user get /api/v1/challenges/<challenge_id>/solves if ctftime is over"""
     app = create_ctfd()
     with app.app_context(), freeze_time("2017-10-7"):
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1/solves")
@@ -1165,7 +1216,8 @@ def test_api_challenge_get_solves_verified_emails():
     app = create_ctfd()
     with app.app_context():
         set_config("verify_emails", True)
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_user(
             app.db,
             name="user_name",
@@ -1189,7 +1241,8 @@ def test_api_challenges_get_solves_score_visibility():
     with app.app_context():
         set_config("challenge_visibility", "public")
         set_config("score_visibility", "public")
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/solves")
             assert r.status_code == 200
@@ -1222,8 +1275,9 @@ def test_api_challenge_solves_returns_correct_data():
     app = create_ctfd()
     with app.app_context():
         register_user(app)
+        admin_user = Users.query.filter_by(name="admin").first()
         client = login_as_user(app)
-        chal = gen_challenge(app.db)
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_solve(app.db, user_id=2, challenge_id=chal.id)
         r = client.get("/api/v1/challenges/1/solves")
         resp = r.get_json()["data"]
@@ -1239,11 +1293,12 @@ def test_api_challenge_solves_returns_correct_data():
     with app.app_context():
         register_user(app)
         client = login_as_user(app)
+        admin_user = Users.query.filter_by(name="admin").first()
         team = gen_team(app.db)
         user = Users.query.filter_by(id=2).first()
         user.team_id = team.id
         app.db.session.commit()
-        chal = gen_challenge(app.db)
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_solve(app.db, user_id=2, team_id=1, challenge_id=chal.id)
         r = client.get("/api/v1/challenges/1/solves")
         resp = r.get_json()["data"]
@@ -1258,8 +1313,9 @@ def test_api_challenge_solves_returns_correct_data():
     app = create_ctfd(application_root="/ctf")
     with app.app_context():
         register_user(app)
+        admin_user = Users.query.filter_by(name="admin").first()
         client = login_as_user(app)
-        chal = gen_challenge(app.db)
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_solve(app.db, user_id=2, challenge_id=chal.id)
         r = client.get("/api/v1/challenges/1/solves")
         resp = r.get_json()["data"]
@@ -1276,7 +1332,8 @@ def test_api_challenge_get_files_non_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/files if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/files", json="")
             assert r.status_code == 403
@@ -1287,7 +1344,8 @@ def test_api_challenge_get_files_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/files if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as client:
             r = client.get("/api/v1/challenges/1/files")
             assert r.status_code == 200
@@ -1298,7 +1356,8 @@ def test_api_challenge_get_tags_non_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/tags if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/tags", json="")
             assert r.status_code == 403
@@ -1309,7 +1368,8 @@ def test_api_challenge_get_tags_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/tags if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as client:
             r = client.get("/api/v1/challenges/1/tags")
             assert r.status_code == 200
@@ -1320,7 +1380,8 @@ def test_api_challenge_get_topics_non_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/topics if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_topic(app.db, challenge_id=1)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/topics", json="")
@@ -1332,7 +1393,8 @@ def test_api_challenge_get_topics_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/topics if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_topic(app.db, challenge_id=1)
         with login_as_user(app, name="admin") as client:
             r = client.get("/api/v1/challenges/1/topics", json="")
@@ -1348,7 +1410,8 @@ def test_api_challenge_get_hints_non_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/hints if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/hints", json="")
             assert r.status_code == 403
@@ -1359,7 +1422,8 @@ def test_api_challenge_get_hints_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/hints if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as client:
             r = client.get("/api/v1/challenges/1/hints")
             assert r.status_code == 200
@@ -1370,7 +1434,8 @@ def test_api_challenge_get_flags_non_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/flags if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/flags", json="")
             assert r.status_code == 403
@@ -1381,7 +1446,8 @@ def test_api_challenge_get_flags_admin():
     """Can a user get /api/v1/challenges/<challenge_id>/flags if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as client:
             r = client.get("/api/v1/challenges/1/flags")
             assert r.status_code == 200

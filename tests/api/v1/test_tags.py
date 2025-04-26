@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from CTFd.models import Users
 from tests.helpers import (
     create_ctfd,
     destroy_ctfd,
@@ -14,7 +14,8 @@ def test_api_tags_get_non_admin():
     """Can a user get /api/v1/tags if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_tag(app.db, 1)
         with app.test_client() as client:
             r = client.get("/api/v1/tags", json="")
@@ -56,7 +57,8 @@ def test_api_tags_post_admin():
     """Can a user post /api/v1/tags if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, name="admin") as client:
             r = client.post("/api/v1/tags", json={"value": "tag", "challenge": 1})
             assert r.status_code == 200
@@ -67,7 +69,8 @@ def test_api_tag_get_admin():
     """Can a user get /api/v1/tags/<tag_id> if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_tag(app.db, 1)
         with login_as_user(app, "admin") as client:
             r = client.get("/api/v1/tags/1", json="")
@@ -79,7 +82,8 @@ def test_api_tag_patch_admin():
     """Can a user patch /api/v1/tags/<tag_id> if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_tag(app.db, 1)
         with login_as_user(app, "admin") as client:
             r = client.patch(
@@ -94,7 +98,8 @@ def test_api_tag_delete_admin():
     """Can a user delete /api/v1/tags/<tag_id> if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_tag(app.db, 1)
         with login_as_user(app, "admin") as client:
             r = client.delete("/api/v1/tags/1", json="")

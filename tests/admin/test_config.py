@@ -38,9 +38,9 @@ def test_reset():
     app = create_ctfd()
     with app.app_context():
         base_user = "user"
-
+        admin_user = Users.query.filter_by(name="admin").first()
         for x in range(10):
-            chal = gen_challenge(app.db, name="chal_name{}".format(x))
+            chal = gen_challenge(app.db, name="chal_name{}".format(x), user_id=admin_user.id)
             gen_flag(app.db, challenge_id=chal.id, content="flag")
             gen_hint(app.db, challenge_id=chal.id)
             gen_file(
@@ -140,9 +140,10 @@ def test_reset_team_mode():
     with app.app_context():
         base_user = "user"
         base_team = "team"
+        admin_user = Users.query.filter_by(name="admin").first()
 
         for x in range(10):
-            chal = gen_challenge(app.db, name="chal_name{}".format(x))
+            chal = gen_challenge(app.db, name="chal_name{}".format(x), user_id=admin_user.id)
             gen_flag(app.db, challenge_id=chal.id, content="flag")
             gen_hint(app.db, challenge_id=chal.id)
             gen_file(

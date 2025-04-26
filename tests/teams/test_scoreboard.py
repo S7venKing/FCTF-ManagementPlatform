@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from CTFd.models import Users
 from CTFd.utils.scores import get_standings
 from tests.helpers import (
     create_ctfd,
@@ -17,11 +17,12 @@ def test_scoreboard_team_score():
     """Is a user's submitted flag reflected on the team's score on /scoreboard"""
     app = create_ctfd(user_mode="teams")
     with app.app_context():
+        admin_user = Users.query.filter_by(name="admin").first()
         user = gen_user(app.db, name="user")
         team = gen_team(app.db)
         user.team_id = team.id
         team.members.append(user)
-        gen_challenge(app.db)
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_flag(app.db, 1)
         app.db.session.commit()
         with login_as_user(app) as client:

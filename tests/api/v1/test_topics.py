@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from CTFd.models import Users
 from tests.helpers import (
     create_ctfd,
     destroy_ctfd,
@@ -15,7 +15,8 @@ def test_api_topics_non_admin():
     """Can a user interact with /api/v1/topics if not admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_topic(app.db, challenge_id=1)
         with app.test_client() as client:
             r = client.get("/api/v1/topics", json="")
@@ -64,7 +65,8 @@ def test_api_topics_get_admin():
     """Can a user get /api/v1/topics if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_topic(app.db, challenge_id=1)
         gen_topic(app.db, challenge_id=1, value="topic2")
         with login_as_user(app, name="admin") as client:
@@ -81,7 +83,8 @@ def test_api_topics_post_admin():
     """Can a user post /api/v1/topics if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, name="admin") as client:
             r = client.post(
                 "/api/v1/topics",
@@ -106,7 +109,8 @@ def test_api_topics_delete_admin():
     """Can a user delete /api/v1/topics/<topic_id> if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_topic(app.db, challenge_id=1)
         with login_as_user(app, "admin") as client:
             r = client.delete("/api/v1/topics/1", json="")
@@ -121,7 +125,8 @@ def test_api_topics_delete_target_admin():
     """Can a user delete /api/v1/topics if admin"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_topic(app.db, challenge_id=1)
         with login_as_user(app, "admin") as client:
             r = client.delete("/api/v1/topics?type=challenge&target_id=1", json="")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from CTFd.models import Comments
+from CTFd.models import Comments, Users
 from tests.helpers import (
     create_ctfd,
     destroy_ctfd,
@@ -15,7 +15,8 @@ from tests.helpers import (
 def test_api_post_comments():
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as admin:
             r = admin.post(
                 "/api/v1/comments",
@@ -45,7 +46,8 @@ def test_api_post_comments():
 def test_api_post_comments_with_invalid_author_id():
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         with login_as_user(app, "admin") as admin:
             r = admin.post(
@@ -67,7 +69,8 @@ def test_api_post_comments_with_invalid_author_id():
 def test_api_get_comments():
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as admin:
             gen_comment(
                 app.db,
@@ -89,7 +92,8 @@ def test_api_get_comments():
 def test_api_delete_comments():
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with login_as_user(app, "admin") as admin:
             gen_comment(
                 app.db,

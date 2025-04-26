@@ -19,9 +19,7 @@ def test_adding_challenge_clears_cache():
     with app.app_context():
         register_user(app)
 
-        with login_as_user(app) as client, login_as_user(
-            app, name="admin", password="password"
-        ) as admin:
+        with login_as_user(app) as client, login_as_user(app, name="admin", password="password") as admin:
             req = client.get("/api/v1/challenges")
             data = req.get_json()
             assert data["data"] == []

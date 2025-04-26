@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from freezegun import freeze_time
-
+from CTFd.models import Users
 from CTFd.utils import set_config
 from tests.helpers import (
     create_ctfd,
@@ -127,8 +127,9 @@ def test_api_challenge_visibility():
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("challenge_visibility", "public")
+        admin_user = Users.query.filter_by(name="admin").first()
         with app.test_client() as client:
-            gen_challenge(app.db)
+            gen_challenge(app.db, user_id=admin_user.id)
             r = client.get("/api/v1/challenges/1")
             assert r.status_code == 200
             set_config("challenge_visibility", "private")
@@ -148,7 +149,8 @@ def test_api_challenge_ctftime():
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("challenge_visibility", "public")
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1")
             assert r.status_code == 403
@@ -165,7 +167,8 @@ def test_api_challenge_user_visibility():
         set_config(
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1")
@@ -186,7 +189,8 @@ def test_api_challenge_user_ctftime():
         set_config(
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1")
@@ -205,7 +209,8 @@ def test_api_challenge_verified_emails():
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("verify_emails", True)
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_user(
             app.db,
             name="user_name",
@@ -251,7 +256,8 @@ def test_api_challenge_solves_visibility():
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("challenge_visibility", "public")
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/solves")
             assert r.status_code == 200
@@ -272,7 +278,8 @@ def test_api_challenge_solves_ctftime():
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("challenge_visibility", "public")
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/solves")
             assert r.status_code == 403
@@ -289,7 +296,8 @@ def test_api_challenge_solves_user_visibility():
         set_config(
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1/solves")
@@ -310,7 +318,8 @@ def test_api_challenge_solves_user_ctftime():
         set_config(
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         register_user(app)
         client = login_as_user(app)
         r = client.get("/api/v1/challenges/1/solves")
@@ -329,7 +338,8 @@ def test_api_challenge_solves_verified_emails():
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("verify_emails", True)
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_user(
             app.db,
             name="user_name",
@@ -359,7 +369,8 @@ def test_api_challenges_solves_score_visibility():
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
         set_config("challenge_visibility", "public")
         set_config("score_visibility", "public")
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         with app.test_client() as client:
             r = client.get("/api/v1/challenges/1/solves")
             assert r.status_code == 200

@@ -1,4 +1,4 @@
-from CTFd.models import Teams
+from CTFd.models import Teams, Users
 from CTFd.utils.scores import get_standings, get_team_standings
 from tests.helpers import (
     create_ctfd,
@@ -12,6 +12,7 @@ from tests.helpers import (
 
 
 def setup_app(app):
+    admin_user = Users.query.filter_by(name="admin").first()
     user1 = gen_user(app.db, name="user1", email="user1@examplectf.com")
     team1 = gen_team(app.db, name="team1", email="team1@examplectf.com")
     user1.team_id = team1.id
@@ -23,7 +24,7 @@ def setup_app(app):
     user2.team_id = team2.id
     team2.members.append(user2)
 
-    gen_challenge(app.db)
+    gen_challenge(app.db, user_id=admin_user.id)
     gen_flag(app.db, 1)
 
     app.db.session.commit()

@@ -449,11 +449,13 @@ def test_api_team_get_solves_after_freze_time():
         tm_name = team_member.name
 
         set_config("freeze", "1507262400")
+        admin_user = Users.query.filter_by(name="admin").first()
+
         with freeze_time("2017-10-4"):
-            chal = gen_challenge(app.db)
+            chal = gen_challenge(app.db, user_id=admin_user.id)
             chal_id = chal.id
             gen_solve(app.db, user_id=3, team_id=1, challenge_id=chal_id)
-            chal2 = gen_challenge(app.db)
+            chal2 = gen_challenge(app.db, user_id=admin_user.id)
             chal2_id = chal2.id
 
         with freeze_time("2017-10-8"):
@@ -531,10 +533,11 @@ def test_api_team_get_fails_after_freze_time():
         tm_name = team_member.name
 
         set_config("freeze", "1507262400")
+        admin_user = Users.query.filter_by(name="admin").first()
         with freeze_time("2017-10-4"):
-            chal = gen_challenge(app.db)
+            chal = gen_challenge(app.db, user_id=admin_user.id)
             chal_id = chal.id
-            chal2 = gen_challenge(app.db)
+            chal2 = gen_challenge(app.db, user_id=admin_user.id)
             chal2_id = chal2.id
             gen_fail(app.db, user_id=3, team_id=1, challenge_id=chal_id)
 
@@ -763,8 +766,9 @@ def test_api_team_captain_disbanding_only_inactive_teams():
         user2 = gen_user(app.db, name="user2", email="user2@examplectf.com")
         team.members.append(user2)
         app.db.session.commit()
+        admin_user = Users.query.filter_by(name="admin").first()
 
-        gen_challenge(app.db)
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_flag(app.db, 1)
         gen_solve(app.db, user_id=3, team_id=1, challenge_id=1)
 
@@ -856,7 +860,8 @@ def test_api_user_without_team_challenge_interaction():
     app = create_ctfd(user_mode="teams")
     with app.app_context():
         register_user(app)
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        gen_challenge(app.db, user_id=admin_user.id)
         gen_flag(app.db, 1)
 
         with login_as_user(app) as client:

@@ -9,7 +9,9 @@ def test_export_csv_works():
     """Test that CSV exports work properly"""
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+
+        gen_challenge(app.db, user_id=admin_user.id)
         client = login_as_user(app, name="admin", password="password")
 
         csv_data = client.get("/admin/export/csv?table=challenges").get_data(

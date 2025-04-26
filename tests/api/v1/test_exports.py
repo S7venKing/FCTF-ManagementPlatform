@@ -6,11 +6,14 @@ from tests.helpers import (
     register_user,
 )
 
+from CTFd.models import Users
 
 def test_api_export_csv():
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+
+        gen_challenge(app.db, user_id=admin_user.id)
         data = {
             "type": "csv",
             "args": {"table": "challenges"},
@@ -33,7 +36,9 @@ def test_api_export_csv():
 def test_api_export():
     app = create_ctfd()
     with app.app_context():
-        gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+
+        gen_challenge(app.db, user_id=admin_user.id)
         data = {}
 
         with login_as_user(app, name="admin", password="password") as client:

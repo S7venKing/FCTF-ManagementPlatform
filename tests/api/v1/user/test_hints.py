@@ -3,7 +3,7 @@
 
 from freezegun import freeze_time
 
-from CTFd.models import Hints
+from CTFd.models import Hints, Users
 from CTFd.utils import set_config
 from tests.helpers import (
     create_ctfd,
@@ -31,7 +31,8 @@ def test_api_hint_visibility():
     """Can the users load /api/v1/hints/<hint_id> if logged in/out"""
     app = create_ctfd()
     with app.app_context():
-        chal = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id)
         with app.test_client() as non_logged_in_user:
             r = non_logged_in_user.get("/api/v1/hints/1")
@@ -53,7 +54,9 @@ def test_api_hint_visibility_ctftime():
         set_config(
             "end", "1507262400"
         )  # Friday, October 6, 2017 12:00:00 AM GMT-04:00 DST
-        chal = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id)
         register_user(app)
         client = login_as_user(app)
@@ -66,7 +69,8 @@ def test_api_hint_locked():
     """Can the users unlock /api/v1/hints/<hint_id> if they don't have enough points"""
     app = create_ctfd()
     with app.app_context():
-        chal = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id, content="This is a hint", cost=1, type="standard")
         register_user(app)
         client = login_as_user(app)
@@ -81,7 +85,8 @@ def test_api_hint_unlocked():
     """Can the users unlock /api/v1/hints/<hint_id> if they have enough points"""
     app = create_ctfd()
     with app.app_context():
-        chal = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id, content="This is a hint", cost=1, type="standard")
         register_user(app)
         # Give user points with an award
@@ -100,7 +105,8 @@ def test_api_hint_double_unlock():
     """Can a target hint be unlocked twice"""
     app = create_ctfd()
     with app.app_context():
-        chal = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id, content="This is a hint", cost=1, type="standard")
         register_user(app)
         # Give user points with an award
@@ -121,7 +127,8 @@ def test_users_dont_prevent_other_users_from_unlocking_hints():
     """Unlocks from one user don't affect other users"""
     app = create_ctfd()
     with app.app_context():
-        chal = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id, content="This is a hint", cost=1, type="standard")
         register_user(app)
         register_user(app, name="user2", email="user2@examplectf.com")
@@ -167,7 +174,8 @@ def test_api_hint_admin_access():
     """Can the users patch/delete /api/v1/hint/<hint_id> if not admin"""
     app = create_ctfd()
     with app.app_context():
-        chal = gen_challenge(app.db)
+        admin_user = Users.query.filter_by(name="admin").first()
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(app.db, chal.id, content="This is a hint", cost=1, type="standard")
         admin = login_as_user(app, "admin")
         register_user(app)
@@ -189,9 +197,9 @@ def test_api_hints_accessible_public():
     with app.app_context():
         # Set challenges to be visible publicly
         set_config("challenge_visibility", "public")
-
+        admin_user = Users.query.filter_by(name="admin").first()
         register_user(app)
-        chal = gen_challenge(app.db)
+        chal = gen_challenge(app.db, user_id=admin_user.id)
         gen_hint(
             app.db, chal.id, content="This is a free hint", cost=0, type="standard"
         )
